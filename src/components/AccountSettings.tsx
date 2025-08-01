@@ -222,7 +222,7 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
                 {userRole === 'manager' && (
                   <p>• <strong>Leadership Competencies:</strong> Management and strategic capabilities</p>
                 )}
-                <p>• <strong>Grade Expectations:</strong> Benchmarks for {userRole === 'ic' ? 'IC1-IC5' : 'M1-M4'} levels</p>
+                <p>• <strong>Grade Expectations:</strong> Benchmarks for {userRole === 'ic' ? 'G5-G11' : 'G5-G13'} levels</p>
               </div>
             </div>
           </div>

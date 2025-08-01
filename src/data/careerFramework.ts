@@ -266,7 +266,7 @@ export const managerCompetencies: Competency[] = [
 
 // Grade expectations (1-5 scale mapping)
 export const gradeExpectations: { [grade: string]: { [competencyId: string]: number } } = {
-  'IC1': {
+  'G5': {
     'methodology': 1,
     'acumen': 1,
     'innovation': 1,
@@ -280,13 +280,13 @@ export const gradeExpectations: { [grade: string]: { [competencyId: string]: num
     'composable-systems-thinking': 1,
     'experience-harmony': 1
   },
-  'IC2': {
+  'G6': {
     'methodology': 2,
-    'acumen': 2,
+    'acumen': 1,
     'innovation': 1,
     'delivery': 2,
     'craft': 2,
-    'storytelling': 2,
+    'storytelling': 1,
     'problem-solving': 2,
     'ownership': 2,
     'influence': 1,
@@ -294,7 +294,21 @@ export const gradeExpectations: { [grade: string]: { [competencyId: string]: num
     'composable-systems-thinking': 1,
     'experience-harmony': 2
   },
-  'IC3': {
+  'G7': {
+    'methodology': 2,
+    'acumen': 2,
+    'innovation': 2,
+    'delivery': 2,
+    'craft': 2,
+    'storytelling': 2,
+    'problem-solving': 2,
+    'ownership': 2,
+    'influence': 2,
+    'user-centered-design': 2,
+    'composable-systems-thinking': 2,
+    'experience-harmony': 2
+  },
+  'G8': {
     'methodology': 3,
     'acumen': 2,
     'innovation': 2,
@@ -308,7 +322,21 @@ export const gradeExpectations: { [grade: string]: { [competencyId: string]: num
     'composable-systems-thinking': 2,
     'experience-harmony': 3
   },
-  'IC4': {
+  'G9': {
+    'methodology': 3,
+    'acumen': 3,
+    'innovation': 3,
+    'delivery': 3,
+    'craft': 3,
+    'storytelling': 3,
+    'problem-solving': 3,
+    'ownership': 3,
+    'influence': 3,
+    'user-centered-design': 3,
+    'composable-systems-thinking': 3,
+    'experience-harmony': 3
+  },
+  'G10': {
     'methodology': 4,
     'acumen': 3,
     'innovation': 3,
@@ -322,19 +350,54 @@ export const gradeExpectations: { [grade: string]: { [competencyId: string]: num
     'composable-systems-thinking': 3,
     'experience-harmony': 4
   },
-  'IC5': {
+  'G11': {
+    'methodology': 4,
+    'acumen': 4,
+    'innovation': 4,
+    'delivery': 4,
+    'craft': 4,
+    'storytelling': 4,
+    'problem-solving': 4,
+    'ownership': 4,
+    'influence': 4,
+    'user-centered-design': 4,
+    'composable-systems-thinking': 4,
+    'experience-harmony': 4
+  },
+  // Manager grades (G5-G13)
+  'G12': {
     'methodology': 5,
     'acumen': 4,
     'innovation': 4,
     'delivery': 5,
-    'craft': 5,
+    'craft': 4,
     'storytelling': 5,
     'problem-solving': 5,
     'ownership': 5,
     'influence': 4,
     'user-centered-design': 5,
     'composable-systems-thinking': 4,
-    'experience-harmony': 5
+    'experience-harmony': 5,
+    'people-development': 4,
+    'strategic-leadership': 4,
+    'operational-excellence': 4
+  },
+  'G13': {
+    'methodology': 5,
+    'acumen': 5,
+    'innovation': 5,
+    'delivery': 5,
+    'craft': 5,
+    'storytelling': 5,
+    'problem-solving': 5,
+    'ownership': 5,
+    'influence': 5,
+    'user-centered-design': 5,
+    'composable-systems-thinking': 5,
+    'experience-harmony': 5,
+    'people-development': 5,
+    'strategic-leadership': 5,
+    'operational-excellence': 5
   }
 };
 

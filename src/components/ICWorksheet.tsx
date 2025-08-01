@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getAllCompetencies, gradeExpectations, type Competency } from '@/data/careerFramework';
+import GradeInfo from './GradeInfo';
 
 interface CompetencyAssessment {
   competencyId: string;
@@ -15,7 +16,7 @@ interface CompetencyAssessment {
 export default function ICWorksheet() {
   const [assessments, setAssessments] = useState<CompetencyAssessment[]>([]);
   const [selectedPillar, setSelectedPillar] = useState<string>('all');
-  const [selectedGrade, setSelectedGrade] = useState<string>('IC3');
+  const [selectedGrade, setSelectedGrade] = useState<string>('G7');
   const competencies = getAllCompetencies();
 
   // Initialize assessments based on framework data
@@ -104,7 +105,7 @@ export default function ICWorksheet() {
     };
   };
 
-  const grades = ['IC1', 'IC2', 'IC3', 'IC4', 'IC5'];
+  const grades = ['G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11'];
 
   return (
     <div className="space-y-6">
@@ -145,14 +146,7 @@ export default function ICWorksheet() {
           </p>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-lg text-white">
-          <h3 className="font-semibold mb-2">Framework Overview</h3>
-          <div className="text-sm opacity-90">
-            <p>• <strong>Shared Competencies:</strong> 9 core UX skills (proficiency scale)</p>
-            <p>• <strong>Role-Based:</strong> 3 UX Design specialties (scope & impact scale)</p>
-            <p>• Total: 12 competencies across 4 pillars</p>
-          </div>
-        </div>
+        <GradeInfo userRole="ic" selectedGrade={selectedGrade} />
       </div>
 
       {/* Pillar Filter */}

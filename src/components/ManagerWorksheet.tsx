@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getManagerCompetencies, gradeExpectations, type Competency } from '@/data/careerFramework';
+import GradeInfo from './GradeInfo';
 
 interface ManagerAssessment {
   competencyId: string;
@@ -15,7 +16,7 @@ interface ManagerAssessment {
 export default function ManagerWorksheet() {
   const [assessments, setAssessments] = useState<ManagerAssessment[]>([]);
   const [selectedPillar, setSelectedPillar] = useState<string>('all');
-  const [selectedGrade, setSelectedGrade] = useState<string>('M1');
+  const [selectedGrade, setSelectedGrade] = useState<string>('G8');
   const competencies = getManagerCompetencies();
 
   // Initialize assessments based on framework data
@@ -112,7 +113,7 @@ export default function ManagerWorksheet() {
     };
   };
 
-  const grades = ['M1', 'M2', 'M3', 'M4', 'Principal'];
+  const grades = ['G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'G13'];
 
   return (
     <div className="space-y-6">
@@ -172,14 +173,7 @@ export default function ManagerWorksheet() {
           </p>
         </div>
 
-        <div className="bg-gradient-to-r from-green-500 to-blue-500 p-4 rounded-lg text-white">
-          <h3 className="font-semibold mb-2">Manager Framework</h3>
-          <div className="text-sm opacity-90">
-            <p>• <strong>Shared Competencies:</strong> All 9 core UX skills</p>
-            <p>• <strong>Leadership Focus:</strong> People development, strategy, operations</p>
-            <p>• <strong>Role-Based:</strong> UX Design + management responsibilities</p>
-          </div>
-        </div>
+        <GradeInfo userRole="manager" selectedGrade={selectedGrade} />
       </div>
 
       {/* Pillar Filter */}
