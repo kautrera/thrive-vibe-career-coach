@@ -10,7 +10,7 @@ import QuarterlyCheckIn from '@/components/QuarterlyCheckIn';
 import AICoach from '@/components/AICoach';
 import RoleSelection from '@/components/RoleSelection';
 
-type ActivePage = 'dashboard' | 'assessment' | 'weekly-checkin' | 'quarterly-checkin' | 'ai-coach';
+type ActivePage = 'dashboard';
 type UserRole = 'ic' | 'manager' | null;
 
 export default function Home() {
@@ -40,21 +40,9 @@ export default function Home() {
     return <RoleSelection onRoleSelect={handleRoleChange} />;
   }
 
+  // Since we removed navigation, always show dashboard
   const renderContent = () => {
-    switch (activePage) {
-      case 'dashboard':
-        return <Dashboard userRole={userRole} onRoleChange={handleRoleChange} />;
-      case 'assessment':
-        return userRole === 'ic' ? <ICWorksheet /> : <ManagerWorksheet />;
-      case 'weekly-checkin':
-        return <WeeklyCheckIn userRole={userRole} />;
-      case 'quarterly-checkin':
-        return <QuarterlyCheckIn userRole={userRole} />;
-      case 'ai-coach':
-        return <AICoach />;
-      default:
-        return <Dashboard userRole={userRole} onRoleChange={handleRoleChange} />;
-    }
+    return <Dashboard userRole={userRole} onRoleChange={handleRoleChange} />;
   };
 
   return (

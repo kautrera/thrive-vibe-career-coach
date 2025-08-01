@@ -1,6 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import ICWorksheet from './ICWorksheet';
+import ManagerWorksheet from './ManagerWorksheet';
+import WeeklyCheckIn from './WeeklyCheckIn';
+import QuarterlyCheckIn from './QuarterlyCheckIn';
+import AICoach from './AICoach';
 
 interface ProgressData {
   icProgress: number;
@@ -32,16 +37,19 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
     }
   }, []);
 
+  const [activeSection, setActiveSection] = useState<'dashboard' | 'assessment' | 'weekly-checkin' | 'quarterly-checkin' | 'ai-coach'>('dashboard');
+
   const quickActions = [
     { 
+      id: 'assessment',
       title: userRole === 'ic' ? 'Complete IC Assessment' : 'Complete Manager Assessment', 
       description: userRole === 'ic' ? 'Self-assess your IC competencies' : 'Evaluate your leadership capabilities', 
       icon: userRole === 'ic' ? '👤' : '👥', 
       color: userRole === 'ic' ? 'bg-blue-500' : 'bg-green-500' 
     },
-    { title: 'Weekly Check-in', description: 'Quick weekly progress update', icon: '📅', color: 'bg-green-500' },
-    { title: 'Talk to AI Coach', description: 'Get personalized career advice', icon: '🤖', color: 'bg-purple-500' },
-    { title: 'Quarterly Review', description: 'Comprehensive performance review', icon: '📈', color: 'bg-orange-500' },
+    { id: 'weekly-checkin', title: 'Weekly Check-in', description: 'Quick weekly progress update', icon: '📅', color: 'bg-green-500' },
+    { id: 'ai-coach', title: 'Talk to AI Coach', description: 'Get personalized career advice', icon: '🤖', color: 'bg-purple-500' },
+    { id: 'quarterly-checkin', title: 'Quarterly Review', description: 'Comprehensive performance review', icon: '📈', color: 'bg-orange-500' },
   ];
 
   const insights = [
@@ -51,7 +59,22 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
     "Schedule more regular 1:1s with cross-functional partners"
   ];
 
-  return (
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case 'assessment':
+        return userRole === 'ic' ? <ICWorksheet /> : <ManagerWorksheet />;
+      case 'weekly-checkin':
+        return <WeeklyCheckIn userRole={userRole} />;
+      case 'quarterly-checkin':
+        return <QuarterlyCheckIn userRole={userRole} />;
+      case 'ai-coach':
+        return <AICoach />;
+      default:
+        return renderDashboardContent();
+    }
+  };
+
+  const renderDashboardContent = () => (
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className={`bg-gradient-to-r ${userRole === 'ic' ? 'from-blue-600 to-purple-600' : 'from-green-600 to-blue-600'} rounded-lg p-6 text-white`}>
@@ -135,25 +158,29 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {quickActions.map((action, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center text-white text-xl`}>
-                  {action.icon}
+              {/* Quick Actions */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {quickActions.map((action, index) => (
+              <button 
+                key={index} 
+                onClick={() => setActiveSection(action.id as any)}
+                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-left w-full"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center text-white text-xl`}>
+                    {action.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{action.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{action.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">{action.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{action.description}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
       {/* Insights & Recommendations */}
       <div>
@@ -193,6 +220,25 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  return (
+    <div>
+      {/* Navigation breadcrumb for non-dashboard sections */}
+      {activeSection !== 'dashboard' && (
+        <div className="mb-6">
+          <button
+            onClick={() => setActiveSection('dashboard')}
+            className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+          >
+            <span>←</span>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      )}
+      
+      {renderActiveSection()}
     </div>
   );
 }
