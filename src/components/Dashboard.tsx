@@ -10,7 +10,12 @@ interface ProgressData {
   lastActivity: string;
 }
 
-export default function Dashboard() {
+interface DashboardProps {
+  userRole: 'ic' | 'manager';
+  onRoleChange: (role: 'ic' | 'manager' | null) => void;
+}
+
+export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
   const [progressData, setProgressData] = useState<ProgressData>({
     icProgress: 0,
     managerProgress: 0,
@@ -28,7 +33,12 @@ export default function Dashboard() {
   }, []);
 
   const quickActions = [
-    { title: 'Complete Self-Assessment', description: 'Fill out your IC or Manager worksheet', icon: '📝', color: 'bg-blue-500' },
+    { 
+      title: userRole === 'ic' ? 'Complete IC Assessment' : 'Complete Manager Assessment', 
+      description: userRole === 'ic' ? 'Self-assess your IC competencies' : 'Evaluate your leadership capabilities', 
+      icon: userRole === 'ic' ? '👤' : '👥', 
+      color: userRole === 'ic' ? 'bg-blue-500' : 'bg-green-500' 
+    },
     { title: 'Weekly Check-in', description: 'Quick weekly progress update', icon: '📅', color: 'bg-green-500' },
     { title: 'Talk to AI Coach', description: 'Get personalized career advice', icon: '🤖', color: 'bg-purple-500' },
     { title: 'Quarterly Review', description: 'Comprehensive performance review', icon: '📈', color: 'bg-orange-500' },
@@ -44,9 +54,21 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">Welcome back! 👋</h1>
-        <p className="text-blue-100">Let's continue your career growth journey at Salesforce UX</p>
+      <div className={`bg-gradient-to-r ${userRole === 'ic' ? 'from-blue-600 to-purple-600' : 'from-green-600 to-blue-600'} rounded-lg p-6 text-white`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Welcome back! 👋</h1>
+            <p className={`${userRole === 'ic' ? 'text-blue-100' : 'text-green-100'}`}>
+              Let's continue your {userRole === 'ic' ? 'IC career growth' : 'leadership'} journey at Salesforce UX
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-4xl mb-2">{userRole === 'ic' ? '👤' : '👥'}</div>
+            <p className="text-sm opacity-75">
+              {userRole === 'ic' ? 'Individual Contributor' : 'Manager'}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Progress Overview */}
@@ -54,32 +76,39 @@ export default function Dashboard() {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">IC Assessment</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{progressData.icProgress}%</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                {userRole === 'ic' ? 'IC Assessment' : 'Manager Assessment'}
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {userRole === 'ic' ? progressData.icProgress : progressData.managerProgress}%
+              </p>
             </div>
-            <div className="text-3xl">👤</div>
+            <div className="text-3xl">{userRole === 'ic' ? '👤' : '👥'}</div>
           </div>
           <div className="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${progressData.icProgress}%` }}
+              className={`${userRole === 'ic' ? 'bg-blue-600' : 'bg-green-600'} h-2 rounded-full transition-all duration-300`}
+              style={{ width: `${userRole === 'ic' ? progressData.icProgress : progressData.managerProgress}%` }}
             ></div>
           </div>
         </div>
 
+        {/* Role Switch Option */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Manager Assessment</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{progressData.managerProgress}%</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Current Role</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {userRole === 'ic' ? 'Individual Contributor' : 'Manager'}
+              </p>
             </div>
-            <div className="text-3xl">👥</div>
-          </div>
-          <div className="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-green-600 h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${progressData.managerProgress}%` }}
-            ></div>
+            <button
+              onClick={() => onRoleChange(null)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            >
+              <span>🔄</span>
+              <span className="text-sm font-medium">Switch</span>
+            </button>
           </div>
         </div>
 

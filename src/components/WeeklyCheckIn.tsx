@@ -19,7 +19,11 @@ interface CheckInQuestion {
   placeholder: string;
 }
 
-export default function WeeklyCheckIn() {
+interface WeeklyCheckInProps {
+  userRole: 'ic' | 'manager';
+}
+
+export default function WeeklyCheckIn({ userRole }: WeeklyCheckInProps) {
   const [currentEntry, setCurrentEntry] = useState<WeeklyEntry | null>(null);
   const [pastEntries, setPastEntries] = useState<WeeklyEntry[]>([]);
   const [showPastEntries, setShowPastEntries] = useState(false);
@@ -144,7 +148,9 @@ export default function WeeklyCheckIn() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Weekly Check-in</h1>
-            <p className="text-gray-600 dark:text-gray-400">Week of {currentEntry.week}</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              {userRole === 'ic' ? 'Individual Contributor' : 'Manager'} • Week of {currentEntry.week}
+            </p>
           </div>
           <button
             onClick={() => setShowPastEntries(!showPastEntries)}

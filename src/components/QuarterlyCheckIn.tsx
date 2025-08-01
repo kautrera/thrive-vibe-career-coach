@@ -21,7 +21,11 @@ interface QuarterlyReview {
   overallRating: number;
 }
 
-export default function QuarterlyCheckIn() {
+interface QuarterlyCheckInProps {
+  userRole: 'ic' | 'manager';
+}
+
+export default function QuarterlyCheckIn({ userRole }: QuarterlyCheckInProps) {
   const [currentReview, setCurrentReview] = useState<QuarterlyReview | null>(null);
   const [pastReviews, setPastReviews] = useState<QuarterlyReview[]>([]);
   const [activeSection, setActiveSection] = useState('overview');
@@ -155,9 +159,11 @@ export default function QuarterlyCheckIn() {
       case 'overview':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-lg text-white">
+            <div className={`bg-gradient-to-r ${userRole === 'ic' ? 'from-purple-600 to-blue-600' : 'from-green-600 to-blue-600'} p-6 rounded-lg text-white`}>
               <h2 className="text-2xl font-bold mb-2">{currentReview.quarter} {currentReview.year} Performance Review</h2>
-              <p className="opacity-90">Comprehensive quarterly assessment and planning</p>
+              <p className="opacity-90">
+                {userRole === 'ic' ? 'Individual Contributor' : 'Manager'} • Comprehensive quarterly assessment and planning
+              </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

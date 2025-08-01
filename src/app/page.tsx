@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Dashboard from '@/components/Dashboard';
 import ICWorksheet from '@/components/ICWorksheet';
@@ -8,34 +8,63 @@ import ManagerWorksheet from '@/components/ManagerWorksheet';
 import WeeklyCheckIn from '@/components/WeeklyCheckIn';
 import QuarterlyCheckIn from '@/components/QuarterlyCheckIn';
 import AICoach from '@/components/AICoach';
+import RoleSelection from '@/components/RoleSelection';
 
-type ActivePage = 'dashboard' | 'ic-worksheet' | 'manager-worksheet' | 'weekly-checkin' | 'quarterly-checkin' | 'ai-coach';
+type ActivePage = 'dashboard' | 'assessment' | 'weekly-checkin' | 'quarterly-checkin' | 'ai-coach';
+type UserRole = 'ic' | 'manager' | null;
 
 export default function Home() {
   const [activePage, setActivePage] = useState<ActivePage>('dashboard');
+  const [userRole, setUserRole] = useState<UserRole>(null);
+
+  // Load saved role on component mount
+  useEffect(() => {
+    const savedRole = localStorage.getItem('userRole') as UserRole;
+    if (savedRole) {
+      setUserRole(savedRole);
+    }
+  }, []);
+
+  // Save role to localStorage when it changes
+  const handleRoleChange = (role: UserRole) => {
+    setUserRole(role);
+    if (role) {
+      localStorage.setItem('userRole', role);
+    } else {
+      localStorage.removeItem('userRole');
+    }
+  };
+
+  // If no role selected, show role selection
+  if (!userRole) {
+    return <RoleSelection onRoleSelect={handleRoleChange} />;
+  }
 
   const renderContent = () => {
     switch (activePage) {
       case 'dashboard':
-        return <Dashboard />;
-      case 'ic-worksheet':
-        return <ICWorksheet />;
-      case 'manager-worksheet':
-        return <ManagerWorksheet />;
+        return <Dashboard userRole={userRole} onRoleChange={handleRoleChange} />;
+      case 'assessment':
+        return userRole === 'ic' ? <ICWorksheet /> : <ManagerWorksheet />;
       case 'weekly-checkin':
-        return <WeeklyCheckIn />;
+        return <WeeklyCheckIn userRole={userRole} />;
       case 'quarterly-checkin':
-        return <QuarterlyCheckIn />;
+        return <QuarterlyCheckIn userRole={userRole} />;
       case 'ai-coach':
         return <AICoach />;
       default:
-        return <Dashboard />;
+        return <Dashboard userRole={userRole} onRoleChange={handleRoleChange} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Navigation activePage={activePage} setActivePage={setActivePage} />
+      <Navigation 
+        activePage={activePage} 
+        setActivePage={setActivePage} 
+        userRole={userRole}
+        onRoleChange={handleRoleChange}
+      />
       <main className="container mx-auto px-4 py-8">
         {renderContent()}
       </main>
