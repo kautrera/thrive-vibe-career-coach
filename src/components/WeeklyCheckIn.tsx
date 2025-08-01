@@ -27,34 +27,40 @@ export default function WeeklyCheckIn() {
   // Questions derived from Column C of the career framework
   const weeklyQuestions: CheckInQuestion[] = [
     {
-      id: 'impact',
-      category: 'Impact & Growth',
-      question: 'What was your biggest impact this week?',
-      placeholder: 'Describe a project, decision, or contribution that created value...'
+      id: 'methodology-growth',
+      category: 'UX Core',
+      question: 'How did you apply or strengthen your UX methodology this week?',
+      placeholder: 'Describe methodologies used, research conducted, or process improvements...'
     },
     {
-      id: 'learning',
-      category: 'Learning & Development',
-      question: 'What did you learn this week?',
-      placeholder: 'New skills, insights, or knowledge gained...'
+      id: 'business-impact',
+      category: 'UX Core',
+      question: 'What business impact did your design work create this week?',
+      placeholder: 'Connect your design decisions to business outcomes or user metrics...'
     },
     {
-      id: 'collaboration',
-      category: 'Collaboration',
-      question: 'How did you collaborate with others this week?',
-      placeholder: 'Cross-functional work, mentoring, or team contributions...'
+      id: 'execution-delivery',
+      category: 'Execution',
+      question: 'What did you deliver this week and how did you ensure quality?',
+      placeholder: 'Describe deliverables, quality measures, and any process improvements...'
     },
     {
-      id: 'challenges',
-      category: 'Problem Solving',
-      question: 'What challenges did you face and how did you address them?',
-      placeholder: 'Obstacles encountered and solutions implemented...'
+      id: 'collaboration-influence',
+      category: 'Leadership',
+      question: 'How did you collaborate and influence stakeholders this week?',
+      placeholder: 'Describe stakeholder interactions, presentations, or consensus building...'
     },
     {
-      id: 'feedback',
-      category: 'Growth',
-      question: 'What feedback did you receive or give this week?',
-      placeholder: 'Constructive feedback exchanged with peers, managers, or reports...'
+      id: 'problem-ownership',
+      category: 'Leadership',
+      question: 'What problems did you solve and how did you take ownership?',
+      placeholder: 'Describe challenges faced, solutions implemented, and accountability taken...'
+    },
+    {
+      id: 'user-centered-focus',
+      category: 'UX Design',
+      question: 'How did you advocate for users and incorporate user insights this week?',
+      placeholder: 'Describe user research, advocacy moments, or user-centered design decisions...'
     }
   ];
 

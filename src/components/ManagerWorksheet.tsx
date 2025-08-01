@@ -1,153 +1,118 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getManagerCompetencies, gradeExpectations, type Competency } from '@/data/careerFramework';
 
-interface ManagerCompetency {
-  id: string;
-  category: string;
-  competency: string;
-  level1: string;
-  level2: string;
-  level3: string;
-  level4: string;
-  level5: string;
-  demonstratedBy: string;
+interface ManagerAssessment {
+  competencyId: string;
   selfAssessment: number;
+  gradeExpectation: number;
+  demonstratedBy: string;
+  teamImpact?: string;
+  managerNotes?: string;
 }
 
 export default function ManagerWorksheet() {
-  const [competencies, setCompetencies] = useState<ManagerCompetency[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [assessments, setAssessments] = useState<ManagerAssessment[]>([]);
+  const [selectedPillar, setSelectedPillar] = useState<string>('all');
+  const [selectedGrade, setSelectedGrade] = useState<string>('M1');
+  const competencies = getManagerCompetencies();
 
+  // Initialize assessments based on framework data
   useEffect(() => {
-    const managerCompetencies: ManagerCompetency[] = [
-      {
-        id: '1',
-        category: 'People Leadership',
-        competency: 'Team Development',
-        level1: 'Supports individual contributors',
-        level2: 'Coaches team members effectively',
-        level3: 'Develops high-performing teams',
-        level4: 'Builds organizational capability',
-        level5: 'Shapes talent strategy',
-        demonstratedBy: '',
-        selfAssessment: 0
-      },
-      {
-        id: '2',
-        category: 'People Leadership',
-        competency: 'Performance Management',
-        level1: 'Conducts regular 1:1s',
-        level2: 'Provides constructive feedback',
-        level3: 'Manages performance issues',
-        level4: 'Optimizes team performance',
-        level5: 'Drives organizational performance',
-        demonstratedBy: '',
-        selfAssessment: 0
-      },
-      {
-        id: '3',
-        category: 'Strategic Leadership',
-        competency: 'Vision & Strategy',
-        level1: 'Communicates team vision',
-        level2: 'Aligns team with strategy',
-        level3: 'Develops strategic initiatives',
-        level4: 'Influences organizational strategy',
-        level5: 'Shapes industry direction',
-        demonstratedBy: '',
-        selfAssessment: 0
-      },
-      {
-        id: '4',
-        category: 'Operational Excellence',
-        competency: 'Process & Execution',
-        level1: 'Manages team processes',
-        level2: 'Optimizes workflows',
-        level3: 'Scales operations',
-        level4: 'Drives organizational efficiency',
-        level5: 'Transforms operations',
-        demonstratedBy: '',
-        selfAssessment: 0
-      },
-      {
-        id: '5',
-        category: 'Design Leadership',
-        competency: 'Design Quality & Standards',
-        level1: 'Maintains design quality',
-        level2: 'Establishes design standards',
-        level3: 'Drives design excellence',
-        level4: 'Influences design culture',
-        level5: 'Shapes design industry',
-        demonstratedBy: '',
-        selfAssessment: 0
-      },
-      {
-        id: '6',
-        category: 'Cross-functional Leadership',
-        competency: 'Stakeholder Influence',
-        level1: 'Collaborates with partners',
-        level2: 'Manages stakeholder expectations',
-        level3: 'Influences key decisions',
-        level4: 'Drives organizational alignment',
-        level5: 'Shapes business strategy',
-        demonstratedBy: '',
-        selfAssessment: 0
-      }
-    ];
-
-    const savedData = localStorage.getItem('managerCompetencies');
+    const savedData = localStorage.getItem('managerAssessments');
     if (savedData) {
-      setCompetencies(JSON.parse(savedData));
+      setAssessments(JSON.parse(savedData));
     } else {
-      setCompetencies(managerCompetencies);
+      // Initialize with framework data
+      const initialAssessments: ManagerAssessment[] = competencies.map(comp => ({
+        competencyId: comp.id,
+        selfAssessment: 0,
+        gradeExpectation: 0, // Managers don't have grade expectations in same way
+        demonstratedBy: '',
+        teamImpact: '',
+        managerNotes: ''
+      }));
+      setAssessments(initialAssessments);
     }
   }, []);
 
-  const saveToLocalStorage = (updatedCompetencies: ManagerCompetency[]) => {
-    localStorage.setItem('managerCompetencies', JSON.stringify(updatedCompetencies));
+  // Update grade expectations when grade changes (if applicable)
+  useEffect(() => {
+    const updatedAssessments = assessments.map(assessment => ({
+      ...assessment,
+      gradeExpectation: 0 // Manager grades TBD in framework
+    }));
+    setAssessments(updatedAssessments);
+    saveToLocalStorage(updatedAssessments);
+  }, [selectedGrade]);
+
+  const saveToLocalStorage = (updatedAssessments: ManagerAssessment[]) => {
+    localStorage.setItem('managerAssessments', JSON.stringify(updatedAssessments));
   };
 
-  const updateDemonstratedBy = (id: string, value: string) => {
-    const updated = competencies.map(comp => 
-      comp.id === id ? { ...comp, demonstratedBy: value } : comp
+  const updateDemonstratedBy = (competencyId: string, value: string) => {
+    const updated = assessments.map(assessment => 
+      assessment.competencyId === competencyId ? { ...assessment, demonstratedBy: value } : assessment
     );
-    setCompetencies(updated);
+    setAssessments(updated);
     saveToLocalStorage(updated);
   };
 
-  const updateSelfAssessment = (id: string, level: number) => {
-    const updated = competencies.map(comp => 
-      comp.id === id ? { ...comp, selfAssessment: level } : comp
+  const updateTeamImpact = (competencyId: string, value: string) => {
+    const updated = assessments.map(assessment => 
+      assessment.competencyId === competencyId ? { ...assessment, teamImpact: value } : assessment
     );
-    setCompetencies(updated);
+    setAssessments(updated);
     saveToLocalStorage(updated);
   };
 
-  const generateDemonstratedBy = async (competency: ManagerCompetency) => {
+  const updateSelfAssessment = (competencyId: string, level: number) => {
+    const updated = assessments.map(assessment => 
+      assessment.competencyId === competencyId ? { ...assessment, selfAssessment: level } : assessment
+    );
+    setAssessments(updated);
+    saveToLocalStorage(updated);
+  };
+
+  const generateDemonstratedBy = async (competency: Competency) => {
     const managerSuggestions = [
-      `Successfully grew team from 3 to 8 designers while maintaining quality`,
-      `Implemented new performance review process resulting in 90% team satisfaction`,
-      `Led cross-functional initiative impacting 5 product teams`,
-      `Developed design standards adopted across 3 business units`,
-      `Mentored 2 ICs to promotion to senior level`,
-      `Established design ops processes reducing project delivery time by 30%`,
-      `Built partnership with engineering leadership improving collaboration by 40%`,
-      `Created team development program with 95% completion rate`
+      `Successfully grew team from 3 to 8 designers while maintaining ${competency.name.toLowerCase()} quality`,
+      `Implemented new ${competency.name.toLowerCase()} process resulting in 90% team satisfaction`,
+      `Led cross-functional ${competency.name.toLowerCase()} initiative impacting 5 product teams`,
+      `Developed ${competency.name.toLowerCase()} standards adopted across 3 business units`,
+      `Mentored 2 ICs to promotion through focused ${competency.name.toLowerCase()} development`,
+      `Established ${competency.name.toLowerCase()} practices reducing delivery time by 30%`,
+      `Built ${competency.name.toLowerCase()} partnership with engineering improving collaboration by 40%`,
+      `Created ${competency.name.toLowerCase()} development program with 95% completion rate`
     ];
     
     const randomSuggestion = managerSuggestions[Math.floor(Math.random() * managerSuggestions.length)];
     updateDemonstratedBy(competency.id, randomSuggestion);
   };
 
-  const categories = ['all', ...Array.from(new Set(competencies.map(c => c.category)))];
-  const filteredCompetencies = selectedCategory === 'all' 
+  const pillars = ['all', ...Array.from(new Set(competencies.map(c => c.pillar)))];
+  const filteredCompetencies = selectedPillar === 'all' 
     ? competencies 
-    : competencies.filter(c => c.category === selectedCategory);
+    : competencies.filter(c => c.pillar === selectedPillar);
 
   const getProgressPercentage = () => {
-    const completed = competencies.filter(c => c.demonstratedBy && c.selfAssessment > 0).length;
-    return Math.round((completed / competencies.length) * 100);
+    const completed = assessments.filter(a => a.demonstratedBy && a.selfAssessment > 0).length;
+    return Math.round((completed / assessments.length) * 100);
   };
+
+  const getAssessment = (competencyId: string) => {
+    return assessments.find(a => a.competencyId === competencyId) || {
+      competencyId,
+      selfAssessment: 0,
+      gradeExpectation: 0,
+      demonstratedBy: '',
+      teamImpact: '',
+      managerNotes: ''
+    };
+  };
+
+  const grades = ['M1', 'M2', 'M3', 'M4', 'Principal'];
 
   return (
     <div className="space-y-6">
@@ -156,9 +121,9 @@ export default function ManagerWorksheet() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Manager Self-Assessment Worksheet</h1>
-            <p className="text-gray-600 dark:text-gray-400">Evaluate your leadership competencies and management skills</p>
+            <p className="text-gray-600 dark:text-gray-400">FY26 UX Career Framework - Leadership & Management Assessment</p>
           </div>
-          <div className="mt-4 md:mt-0">
+          <div className="mt-4 md:mt-0 flex items-center space-x-4">
             <div className="bg-green-100 dark:bg-green-900 px-4 py-2 rounded-lg">
               <span className="text-green-800 dark:text-green-200 font-semibold">
                 Progress: {getProgressPercentage()}%
@@ -187,20 +152,50 @@ export default function ManagerWorksheet() {
         </div>
       </div>
 
-      {/* Category Filter */}
+      {/* Grade Selection & Manager Framework Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Select Your Management Level:
+          </label>
+          <select
+            value={selectedGrade}
+            onChange={(e) => setSelectedGrade(e.target.value)}
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            {grades.map(grade => (
+              <option key={grade} value={grade}>{grade}</option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Management expectations vary by level and team size
+          </p>
+        </div>
+
+        <div className="bg-gradient-to-r from-green-500 to-blue-500 p-4 rounded-lg text-white">
+          <h3 className="font-semibold mb-2">Manager Framework</h3>
+          <div className="text-sm opacity-90">
+            <p>• <strong>Shared Competencies:</strong> All 9 core UX skills</p>
+            <p>• <strong>Leadership Focus:</strong> People development, strategy, operations</p>
+            <p>• <strong>Role-Based:</strong> UX Design + management responsibilities</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Pillar Filter */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
         <div className="flex flex-wrap gap-2">
-          {categories.map(category => (
+          {pillars.map(pillar => (
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
+              key={pillar}
+              onClick={() => setSelectedPillar(pillar)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedCategory === category
+                selectedPillar === pillar
                   ? 'bg-green-600 text-white'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
-              {category === 'all' ? 'All Categories' : category}
+              {pillar === 'all' ? 'All Pillars' : pillar}
             </button>
           ))}
         </div>
