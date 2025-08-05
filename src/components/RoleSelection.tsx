@@ -45,7 +45,7 @@ export default function RoleSelection({ onRoleSelect }: RoleSelectionProps) {
                 </div>
                 <div className="flex items-center text-blue-600 dark:text-blue-400">
                   <span className="mr-2">✓</span>
-                  <span>Grade-based expectations (IC1-IC5)</span>
+                  <span>Grade-based expectations (G5-G11)</span>
                 </div>
                 <div className="flex items-center text-blue-600 dark:text-blue-400">
                   <span className="mr-2">✓</span>

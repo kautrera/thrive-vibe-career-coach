@@ -27,12 +27,27 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
   });
 
   const [activeTab, setActiveTab] = useState('general');
+  const [userName, setUserName] = useState<string>('');
+  const [userLevel, setUserLevel] = useState<string>('G7');
 
-  // Load preferences on mount
+  // Load preferences and username on mount
   useEffect(() => {
     const savedPrefs = localStorage.getItem('userPreferences');
     if (savedPrefs) {
       setPreferences(JSON.parse(savedPrefs));
+    }
+    
+    const savedName = localStorage.getItem('userName');
+    if (savedName) {
+      setUserName(savedName);
+    }
+    
+    const savedLevel = localStorage.getItem('userLevel');
+    if (savedLevel) {
+      setUserLevel(savedLevel);
+    } else {
+      // Set default level based on role
+      setUserLevel(userRole === 'ic' ? 'G7' : 'G7');
     }
   }, []);
 
@@ -46,6 +61,27 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
     if (key === 'theme') {
       applyTheme(value);
     }
+    
+    // Dispatch custom event for AI persona changes
+    if (key === 'aiPersona') {
+      window.dispatchEvent(new CustomEvent('aiPersonaUpdated'));
+    }
+  };
+
+  // Update username
+  const updateUserName = (name: string) => {
+    setUserName(name);
+    localStorage.setItem('userName', name);
+    // Dispatch custom event to update navigation
+    window.dispatchEvent(new CustomEvent('userNameUpdated'));
+  };
+
+  // Update user level
+  const updateUserLevel = (level: string) => {
+    setUserLevel(level);
+    localStorage.setItem('userLevel', level);
+    // Dispatch custom event to update navigation and other components
+    window.dispatchEvent(new CustomEvent('userLevelUpdated'));
   };
 
   // Apply theme to document
@@ -72,10 +108,10 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
   }, [preferences.theme]);
 
   const aiPersonas = [
-    { id: 'liz', name: 'Liz Ryan', description: 'Human-centered career reinvention', avatar: '👩‍💼' },
-    { id: 'lakrisha', name: 'Lakrisha Davis', description: 'Personal branding & LinkedIn', avatar: '💫' },
-    { id: 'madeline', name: 'Madeline Mann', description: 'Job search & interview tips', avatar: '🎯' },
-    { id: 'margaret', name: 'Margaret Buj', description: 'Promotion & salary negotiation', avatar: '💪' }
+    { id: 'liz', name: 'Empathetic', description: 'Human-centered career reinvention', avatar: '👩‍💼' },
+    { id: 'lakrisha', name: 'Polished', description: 'Personal branding & LinkedIn', avatar: '💫' },
+    { id: 'madeline', name: 'Strategic', description: 'Job search & interview tips', avatar: '🎯' },
+    { id: 'margaret', name: 'Assertive', description: 'Promotion & salary negotiation', avatar: '💪' }
   ];
 
   const tabs = [
@@ -84,8 +120,6 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
     { id: 'ai', label: 'AI Coach', icon: '🤖' },
     { id: 'privacy', label: 'Privacy', icon: '🔒' }
   ];
-
-  if (!isOpen) return null;
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -168,6 +202,27 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
         return (
           <div className="space-y-6">
             <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Profile Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Display Name
+                  </label>
+                  <input
+                    type="text"
+                    value={userName}
+                    onChange={(e) => updateUserName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    This name will appear in the navigation header.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Current Role</h3>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
@@ -199,6 +254,47 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
             </div>
 
             <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Current Level</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Select your current grade level
+                  </label>
+                  <select
+                    value={userLevel}
+                    onChange={(e) => updateUserLevel(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  >
+                    {userRole === 'ic' ? (
+                      <>
+                        <option value="G5">G5 - Associate Designer</option>
+                        <option value="G6">G6 - UX Designer</option>
+                        <option value="G7">G7 - Senior UX Designer</option>
+                        <option value="G8">G8 - Lead UX Designer</option>
+                        <option value="G9">G9 - Principal UX Designer</option>
+                        <option value="G10">G10 - UX Architect</option>
+                        <option value="G11">G11 - Principal UX Architect</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="G7">G7 - UX Manager</option>
+                        <option value="G8">G8 - UX Sr Manager</option>
+                        <option value="G9">G9 - UX Design, Director</option>
+                        <option value="G10">G10 - UX Design, Sr Director</option>
+                        <option value="G11">G11 - UX Design, VP</option>
+                        <option value="G12">G12 - UX Design, SVP</option>
+                        <option value="G13">G13 - UX Design, EVP</option>
+                      </>
+                    )}
+                  </select>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    This level will be used for grade expectations in assessments.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Assessment Progress</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
@@ -214,17 +310,7 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
               </div>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Framework Info</h3>
-              <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                <p>• <strong>Shared Competencies:</strong> Core UX skills assessed with proficiency scale</p>
-                <p>• <strong>Role-Based Competencies:</strong> Specific to UX Design roles</p>
-                {userRole === 'manager' && (
-                  <p>• <strong>Leadership Competencies:</strong> Management and strategic capabilities</p>
-                )}
-                <p>• <strong>Grade Expectations:</strong> Benchmarks for {userRole === 'ic' ? 'G5-G11' : 'G5-G13'} levels</p>
-              </div>
-            </div>
+
           </div>
         );
 
@@ -234,7 +320,7 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Default AI Coach Persona</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Choose your preferred coach for new conversations. You can always switch during chat.
+                Choose your preferred coach for new conversations.
               </p>
               <div className="grid grid-cols-1 gap-3">
                 {aiPersonas.map((persona) => (
@@ -352,41 +438,54 @@ export default function AccountSettings({ isOpen, onClose, userRole, onRoleChang
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] flex overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-64 bg-gray-50 dark:bg-gray-900 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Account Settings</h2>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Account Settings</h1>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="flex items-center space-x-2 px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
-              ✕
+              <span>←</span>
+              <span className="text-sm font-medium">Back to Dashboard</span>
             </button>
           </div>
-          
-          <nav className="space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-left ${
-                  activeTab === tab.id
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                <span>{tab.icon}</span>
-                <span className="text-sm font-medium">{tab.label}</span>
-              </button>
-            ))}
-          </nav>
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          {renderTabContent()}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <div className="w-64 flex-shrink-0">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <nav className="space-y-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-left ${
+                      activeTab === tab.id
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <span>{tab.icon}</span>
+                    <span className="text-sm font-medium">{tab.label}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              {renderTabContent()}
+            </div>
+          </div>
         </div>
       </div>
     </div>

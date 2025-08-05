@@ -21,9 +21,10 @@ interface CheckInQuestion {
 
 interface WeeklyCheckInProps {
   userRole: 'ic' | 'manager';
+  onBackToDashboard?: () => void;
 }
 
-export default function WeeklyCheckIn({ userRole }: WeeklyCheckInProps) {
+export default function WeeklyCheckIn({ userRole, onBackToDashboard }: WeeklyCheckInProps) {
   const [currentEntry, setCurrentEntry] = useState<WeeklyEntry | null>(null);
   const [pastEntries, setPastEntries] = useState<WeeklyEntry[]>([]);
   const [showPastEntries, setShowPastEntries] = useState(false);
@@ -143,6 +144,19 @@ export default function WeeklyCheckIn({ userRole }: WeeklyCheckInProps) {
 
   return (
     <div className="space-y-6">
+      {/* Back to Dashboard */}
+      {onBackToDashboard && (
+        <button 
+          onClick={onBackToDashboard}
+          className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors font-medium"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Dashboard
+        </button>
+      )}
+
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div className="flex items-center justify-between">

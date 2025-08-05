@@ -6,56 +6,83 @@ interface GradeInfoProps {
 }
 
 export default function GradeInfo({ userRole, selectedGrade }: GradeInfoProps) {
-  const gradeDescriptions: { [key: string]: { title: string; description: string; focus: string[] } } = {
-    // IC Grades G5-G11
+  const icGradeDescriptions: { [key: string]: { title: string; description: string; focus: string[] } } = {
     'G5': {
-      title: 'Associate UX Designer',
-      description: 'Entry-level UX professional learning foundational skills',
-      focus: ['Basic design principles', 'Tool proficiency', 'Learning methodologies', 'Following guidance']
+      title: 'Associate Designer',
+      description: 'Developing - Supports small to medium-sized projects or workstreams within a team',
+      focus: ['Emergent UX Core skills', 'Basic design principles', 'Learning methodologies', 'Following guidance']
     },
     'G6': {
-      title: 'UX Designer I',
-      description: 'Developing UX professional with growing independence',
-      focus: ['Design execution', 'Basic research skills', 'Component-level thinking', 'Team collaboration']
+      title: 'UX Designer',
+      description: 'Delivering - Delivers scoped projects or workstreams independently across a triad or team',
+      focus: ['Competent execution', 'Independent project delivery', 'Cross-functional collaboration', 'Core UX skills']
     },
     'G7': {
-      title: 'UX Designer II',
-      description: 'Competent UX professional working independently',
-      focus: ['Feature-level design', 'User research', 'Cross-functional collaboration', 'Quality standards']
+      title: 'Senior UX Designer',
+      description: 'Driving - Drives medium- to large-scale programs across multiple teams or product areas',
+      focus: ['Proficient across all areas', 'Multi-team programs', 'Strategic thinking', 'Program influence']
     },
     'G8': {
-      title: 'Senior UX Designer',
-      description: 'Experienced designer leading complex projects',
-      focus: ['Product-level thinking', 'Advanced research', 'Stakeholder management', 'Mentoring others']
+      title: 'Lead UX Designer',
+      description: 'Leading - Leads multiple large-scale, cross-functional programs across a product or function',
+      focus: ['Advanced leadership', 'Cross-functional programs', 'Product-level decisions', 'Senior stakeholder partnership']
     },
     'G9': {
-      title: 'Staff UX Designer',
-      description: 'Expert designer influencing multiple products',
-      focus: ['System-level design', 'Strategic thinking', 'Cross-team influence', 'Innovation leadership']
+      title: 'Principal UX Designer',
+      description: 'Orchestrating - Orchestrates large-scale, complex initiatives across clouds and functions',
+      focus: ['Expert-level impact', 'Cloud-wide initiatives', 'Executive partnership', 'Organizational influence']
     },
     'G10': {
-      title: 'Principal UX Designer',
-      description: 'Senior expert shaping design direction',
-      focus: ['Platform-level impact', 'Design strategy', 'Organizational influence', 'Industry expertise']
+      title: 'UX Architect',
+      description: 'Shaping - Shapes strategic platform-level initiatives across organizations and clouds',
+      focus: ['Strategic platform impact', 'Cross-cloud strategy', 'Investment decisions', 'Organizational transformation']
     },
     'G11': {
-      title: 'Distinguished UX Designer',
-      description: 'Top-tier individual contributor with broad impact',
-      focus: ['Industry leadership', 'Organizational transformation', 'Innovation pioneer', 'Thought leadership']
-    },
-    
-    // Manager Grades G5-G13 (start managing at G8 typically)
-    'G12': {
-      title: 'Senior Design Manager',
-      description: 'Experienced leader managing multiple teams or complex organizations',
-      focus: ['Multi-team leadership', 'Strategic planning', 'Organizational design', 'Talent development']
-    },
-    'G13': {
-      title: 'Design Director / VP',
-      description: 'Executive leader shaping design at organizational scale',
-      focus: ['Executive leadership', 'Business strategy', 'Organizational transformation', 'Industry influence']
+      title: 'Principal UX Architect',
+      description: 'Transforming - Transforms mission-critical priorities across T&P and the company',
+      focus: ['Enterprise-wide vision', 'C-suite partnership', 'Company strategy', 'Industry leadership']
     }
   };
+
+  const managerGradeDescriptions: { [key: string]: { title: string; description: string; focus: string[] } } = {
+    'G7': {
+      title: 'UX Manager',
+      description: 'Driving - People management starts here, leading design teams and programs',
+      focus: ['Team leadership', 'Program management', 'People development', 'Cross-functional collaboration']
+    },
+    'G8': {
+      title: 'UX Sr Manager',
+      description: 'Leading - Senior management role leading multiple teams or complex programs',
+      focus: ['Multi-team leadership', 'Advanced people management', 'Strategic program delivery', 'Stakeholder management']
+    },
+    'G9': {
+      title: 'UX Design, Director',
+      description: 'Orchestrating - Director-level leadership across cloud and function initiatives',
+      focus: ['Organizational leadership', 'Cloud-wide strategy', 'Executive collaboration', 'Design excellence']
+    },
+    'G10': {
+      title: 'UX Design, Sr Director',
+      description: 'Shaping - Senior director shaping platform-level design strategy and operations',
+      focus: ['Platform strategy', 'Cross-cloud leadership', 'Investment planning', 'Organizational design']
+    },
+    'G11': {
+      title: 'UX Design, VP',
+      description: 'Transforming - Vice President transforming design across T&P organization',
+      focus: ['VP-level leadership', 'T&P transformation', 'Business strategy', 'Executive team member']
+    },
+    'G12': {
+      title: 'UX Design, SVP',
+      description: 'Transforming - Senior Vice President driving cloud product and engineering alignment',
+      focus: ['Multi-cloud business pillar', 'Organizational health', 'Design excellence', 'Domain accountability']
+    },
+    'G13': {
+      title: 'UX Design, EVP',
+      description: 'Visionary - Executive Vice President driving T&P and experience org strategic vision',
+      focus: ['Experience org leadership', 'Corporate strategy alignment', 'Customer experience priority', 'Business growth']
+    }
+  };
+
+  const gradeDescriptions = userRole === 'ic' ? icGradeDescriptions : managerGradeDescriptions;
 
   const managerTransition = ['G8', 'G9', 'G10', 'G11'];
   

@@ -8,35 +8,88 @@ interface CompetencyAssessment {
   competencyId: string;
   selfAssessment: number;
   gradeExpectation: number;
-  demonstratedBy: string;
+  demonstratedBy: string; // Legacy field for backwards compatibility
+  levelDemonstratedBy: { [level: number]: string }; // New field for level-specific content
+  levelAssessments: { [level: number]: number }; // Assessment rating for each level
   managerAssessment?: number;
   managerNotes?: string;
 }
+
+// Assessment scales
+const PROFICIENCY_SCALE = [
+  { value: 0, label: 'N/A', description: 'No skill required' },
+  { value: 2, label: 'Emergent', description: 'Basic understanding, requires support' },
+  { value: 4, label: 'Competent', description: 'Applies foundational knowledge independently' },
+  { value: 6, label: 'Proficient', description: 'Applies in-depth knowledge effectively' },
+  { value: 8, label: 'Advanced', description: 'Comprehensive and confident command' },
+  { value: 10, label: 'Expert', description: 'Deep expertise, guides others' }
+];
+
+const SCOPE_IMPACT_SCALE = [
+  { value: 0, label: 'N/A', description: 'Not Required at Level or Role' },
+  { value: 2, label: 'Foundational', description: 'Supports defined team efforts' },
+  { value: 4, label: 'Tactical', description: 'Drives execution of team deliverables' },
+  { value: 6, label: 'Strategic', description: 'Advances cross-functional programs' },
+  { value: 8, label: 'Innovative', description: 'Enhances programs driving scalable impact' },
+  { value: 10, label: 'Transformative', description: 'Rearchitects systems, drives enterprise impact' }
+];
 
 export default function ICWorksheet() {
   const [assessments, setAssessments] = useState<CompetencyAssessment[]>([]);
   const [selectedPillar, setSelectedPillar] = useState<string>('all');
   const [selectedGrade, setSelectedGrade] = useState<string>('G7');
+
+  // Load user's actual grade from localStorage
+  useEffect(() => {
+    const savedLevel = localStorage.getItem('userLevel');
+    if (savedLevel) {
+      setSelectedGrade(savedLevel);
+    }
+  }, []);
+  const [isRecording, setIsRecording] = useState<string | null>(null);
+  const [showGenerateModal, setShowGenerateModal] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<{ [competencyId: string]: number }>({});
+  const [generatePopupPosition, setGeneratePopupPosition] = useState<{ top: number; left: number } | null>(null);
   const competencies = getAllCompetencies();
 
   // Initialize assessments based on framework data
   useEffect(() => {
     const savedData = localStorage.getItem('icAssessments');
+    
     if (savedData) {
-      setAssessments(JSON.parse(savedData));
+      try {
+        const parsed = JSON.parse(savedData);
+        
+        // Migrate old data to new structure if needed
+        const migratedAssessments = parsed.map((assessment: any) => ({
+          ...assessment,
+          levelDemonstratedBy: assessment.levelDemonstratedBy || { 1: '', 2: '', 3: '', 4: '', 5: '' },
+          levelAssessments: assessment.levelAssessments || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        }));
+        setAssessments(migratedAssessments);
+      } catch (error) {
+        console.error('Error parsing saved assessments:', error);
+        // Fall back to initial state if parsing fails
+        initializeEmptyAssessments();
+      }
     } else {
-      // Initialize with framework data
-      const initialAssessments: CompetencyAssessment[] = competencies.map(comp => ({
-        competencyId: comp.id,
-        selfAssessment: 0,
-        gradeExpectation: gradeExpectations[selectedGrade]?.[comp.id] || 0,
-        demonstratedBy: '',
-        managerAssessment: 0,
-        managerNotes: ''
-      }));
-      setAssessments(initialAssessments);
+      initializeEmptyAssessments();
     }
   }, []);
+
+  const initializeEmptyAssessments = () => {
+    const initialAssessments: CompetencyAssessment[] = competencies.map(comp => ({
+      competencyId: comp.id,
+      selfAssessment: 0,
+      gradeExpectation: gradeExpectations[selectedGrade]?.[comp.id] || 0,
+      demonstratedBy: '',
+      levelDemonstratedBy: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+      levelAssessments: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      managerAssessment: 0,
+      managerNotes: ''
+    }));
+    setAssessments(initialAssessments);
+  };
 
   // Update grade expectations when grade changes
   useEffect(() => {
@@ -60,34 +113,172 @@ export default function ICWorksheet() {
     saveToLocalStorage(updated);
   };
 
-  const updateSelfAssessment = (competencyId: string, level: number) => {
+  const updateLevelDemonstratedBy = (competencyId: string, level: number, value: string) => {
     const updated = assessments.map(assessment => 
-      assessment.competencyId === competencyId ? { ...assessment, selfAssessment: level } : assessment
+      assessment.competencyId === competencyId 
+        ? { 
+            ...assessment, 
+            levelDemonstratedBy: { ...assessment.levelDemonstratedBy, [level]: value }
+          } 
+        : assessment
     );
     setAssessments(updated);
     saveToLocalStorage(updated);
   };
 
-  const generateDemonstratedBy = async (competency: Competency) => {
-    // AI-powered suggestions based on competency type
+  const selectLevel = (competencyId: string, level: number) => {
+    // Only allow one competency to be selected at a time
+    setSelectedLevel({ [competencyId]: level });
+  };
+
+  const getLevelContent = (competencyId: string, level: number): string => {
+    const assessment = getAssessment(competencyId);
+    return assessment.levelDemonstratedBy?.[level] || '';
+  };
+
+  const hasLevelContent = (competencyId: string, level: number): boolean => {
+    const content = getLevelContent(competencyId, level);
+    return content.trim().length > 0;
+  };
+
+  const updateSelfAssessment = (competencyId: string, level: number) => {
+    console.log('updateSelfAssessment called with:', competencyId, level);
+    setAssessments(prevAssessments => {
+      // Check if assessment exists, if not create it
+      const existingIndex = prevAssessments.findIndex(a => a.competencyId === competencyId);
+      let updated;
+      
+      if (existingIndex >= 0) {
+        // Update existing assessment
+        updated = prevAssessments.map(assessment => 
+          assessment.competencyId === competencyId 
+            ? { ...assessment, selfAssessment: level }
+            : assessment
+        );
+      } else {
+        // Create new assessment
+        const newAssessment: CompetencyAssessment = {
+          competencyId,
+          selfAssessment: level,
+          gradeExpectation: gradeExpectations[selectedGrade]?.[competencyId] || 0,
+          demonstratedBy: '',
+          levelDemonstratedBy: {},
+          levelAssessments: {}
+        };
+        updated = [...prevAssessments, newAssessment];
+      }
+      
+      console.log('Updated assessments:', updated);
+      saveToLocalStorage(updated);
+      return updated;
+    });
+  };
+
+  const generateDemonstratedBy = async (competency: Competency, event: React.MouseEvent) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    const rect = button.getBoundingClientRect();
+    
+    setGeneratePopupPosition({
+      top: rect.bottom + window.scrollY + 8, // 8px below the button
+      left: rect.left + window.scrollX
+    });
+    setShowGenerateModal(competency.id);
+  };
+
+  const handleGenerateText = async (competencyId: string, features: string) => {
+    const competency = competencies.find(c => c.id === competencyId);
+    if (!competency || !selectedLevel[competencyId]) return;
+
+    const level = selectedLevel[competencyId];
+    const levelDescription = competency.levels[level];
+
+    // AI-powered suggestions based on competency type, level, and features
     const suggestions = [
-      `Led ${competency.name.toLowerCase()} initiative for Q3 product launch with measurable user impact`,
-      `Facilitated cross-functional ${competency.name.toLowerCase()} workshops improving team alignment by 40%`,
-      `Delivered ${competency.name.toLowerCase()} improvements resulting in 15% increase in user satisfaction scores`,
-      `Mentored 3 junior designers on ${competency.name.toLowerCase()} best practices with 100% skill improvement`,
-      `Presented ${competency.name.toLowerCase()} insights to executive stakeholders, influencing product roadmap`,
-      `Established ${competency.name.toLowerCase()} standards adopted across 5 product teams`,
-      `Optimized ${competency.name.toLowerCase()} processes reducing design delivery time by 30%`
+      `Led ${competency.name.toLowerCase()} initiative ${features ? `focusing on ${features}` : ''} demonstrating "${levelDescription}" for Q3 product launch with measurable user impact`,
+      `Facilitated cross-functional ${competency.name.toLowerCase()} workshops ${features ? `emphasizing ${features}` : ''} showing "${levelDescription}" improving team alignment by 40%`,
+      `Delivered ${competency.name.toLowerCase()} improvements ${features ? `incorporating ${features}` : ''} exemplifying "${levelDescription}" resulting in 15% increase in user satisfaction scores`,
+      `Mentored 3 junior designers on ${competency.name.toLowerCase()} best practices ${features ? `with focus on ${features}` : ''} demonstrating "${levelDescription}" with 100% skill improvement`,
+      `Presented ${competency.name.toLowerCase()} insights ${features ? `highlighting ${features}` : ''} showing "${levelDescription}" to executive stakeholders, influencing product roadmap`,
+      `Established ${competency.name.toLowerCase()} standards ${features ? `including ${features}` : ''} exemplifying "${levelDescription}" adopted across 5 product teams`,
+      `Optimized ${competency.name.toLowerCase()} processes ${features ? `leveraging ${features}` : ''} demonstrating "${levelDescription}" reducing design delivery time by 30%`
     ];
     
     const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-    updateDemonstratedBy(competency.id, randomSuggestion);
+    updateLevelDemonstratedBy(competencyId, level, randomSuggestion);
+    setShowGenerateModal(null);
   };
 
-  const pillars = ['all', ...Array.from(new Set(competencies.map(c => c.pillar)))];
+  // Voice recording functionality
+  const startRecording = (competencyId: string) => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsRecording(competencyId);
+      };
+      
+      recognition.onresult = (event: any) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            // Check if this is for a specific level
+            if (competencyId.includes('-')) {
+              const [actualCompetencyId, levelStr] = competencyId.split('-');
+              const level = parseInt(levelStr);
+              const currentContent = getLevelContent(actualCompetencyId, level);
+              updateLevelDemonstratedBy(actualCompetencyId, level, currentContent + transcript);
+            } else {
+              const currentAssessment = getAssessment(competencyId);
+              updateDemonstratedBy(competencyId, currentAssessment.demonstratedBy + transcript);
+            }
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+      };
+      
+      recognition.onerror = () => {
+        setIsRecording(null);
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(null);
+      };
+      
+      recognition.start();
+    } else {
+      alert('Speech recognition not supported in this browser');
+    }
+  };
+
+  const stopRecording = () => {
+    setIsRecording(null);
+  };
+
+  // Define the 4 main themes and their corresponding pillars
+  const themes = {
+    'UX CORE': ['Methodology', 'Acumen', 'Innovation'],
+    'EXECUTION': ['Delivery', 'Craft', 'Storytelling'],
+    'LEADERSHIP': ['Problem Solving', 'Ownership', 'Influence'],
+    'UX DESIGN ROLE': ['User Centered Design', 'Composable Systems Thinking', 'Experience Harmony']
+  };
+
+  const pillars = ['all', ...Object.keys(themes)];
+  
   const filteredCompetencies = selectedPillar === 'all' 
     ? competencies 
-    : competencies.filter(c => c.pillar === selectedPillar);
+    : competencies.filter(c => {
+        const pillarTheme = Object.entries(themes).find(([theme, pillars]) => 
+          pillars.includes(c.pillar)
+        )?.[0];
+        return pillarTheme === selectedPillar;
+      });
 
   const getProgressPercentage = () => {
     const completed = assessments.filter(a => a.demonstratedBy && a.selfAssessment > 0).length;
@@ -100,23 +291,144 @@ export default function ICWorksheet() {
       selfAssessment: 0,
       gradeExpectation: 0,
       demonstratedBy: '',
+      levelDemonstratedBy: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+      levelAssessments: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
       managerAssessment: 0,
       managerNotes: ''
     };
   };
 
-  const grades = ['G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11'];
+  const updateLevelAssessment = (competencyId: string, level: number, value: number) => {
+    setAssessments(prevAssessments => {
+      const updated = prevAssessments.map(assessment => 
+        assessment.competencyId === competencyId 
+          ? { 
+              ...assessment, 
+              levelAssessments: { 
+                ...assessment.levelAssessments, 
+                [level]: value 
+              }
+            } 
+          : assessment
+      );
+      saveToLocalStorage(updated);
+      return updated;
+    });
+  };
+
+  const getLevelAssessment = (competencyId: string, level: number): number => {
+    const assessment = getAssessment(competencyId);
+    return assessment.levelAssessments?.[level] || 0;
+  };
+
+  // Color scheme for level circles
+  const getLevelCircleColor = (competencyId: string, level: number, isSelected: boolean, isExpected: boolean, hasContent: boolean) => {
+    if (isSelected) return 'bg-blue-500';
+    if (isExpected) return 'bg-yellow-500';
+    if (hasContent) return 'bg-green-500';
+    
+    // Color based on assessment level
+    const assessment = getLevelAssessment(competencyId, level);
+    if (assessment >= 8) return 'bg-purple-500'; // Advanced/Expert
+    if (assessment >= 6) return 'bg-indigo-500'; // Proficient/Strategic
+    if (assessment >= 4) return 'bg-teal-500'; // Competent/Tactical
+    if (assessment >= 2) return 'bg-orange-500'; // Emergent/Foundational
+    return 'bg-gray-400'; // N/A or no assessment
+  };
+
+  // Get appropriate scale based on competency category
+  const getAssessmentScale = (competency: Competency) => {
+    // Use scope & impact scale for role-based competencies, proficiency scale for shared competencies
+    return competency.category === 'shared' ? PROFICIENCY_SCALE : SCOPE_IMPACT_SCALE;
+  };
+
+  // IC Grade options matching AccountSettings exactly
+  const grades = [
+    { value: 'G5', label: 'G5 - Associate Designer' },
+    { value: 'G6', label: 'G6 - UX Designer' },
+    { value: 'G7', label: 'G7 - Senior UX Designer' },
+    { value: 'G8', label: 'G8 - Lead UX Designer' },
+    { value: 'G9', label: 'G9 - Principal UX Designer' },
+    { value: 'G10', label: 'G10 - UX Architect' },
+    { value: 'G11', label: 'G11 - Principal UX Architect' }
+  ];
+
+  // Grade descriptions data
+  const icGradeDescriptions: { [key: string]: { title: string; description: string; focus: string[] } } = {
+    'G5': {
+      title: 'Associate Designer',
+      description: 'Developing - Supports small to medium-sized projects or workstreams within a team',
+      focus: ['Emergent UX Core skills', 'Basic design principles', 'Learning methodologies', 'Following guidance']
+    },
+    'G6': {
+      title: 'UX Designer',
+      description: 'Delivering - Delivers scoped projects or workstreams independently across a triad or team',
+      focus: ['Competent execution', 'Independent project delivery', 'Cross-functional collaboration', 'Core UX skills']
+    },
+    'G7': {
+      title: 'Senior UX Designer',
+      description: 'Driving - Drives medium- to large-scale programs across multiple teams or product areas',
+      focus: ['Proficient across all areas', 'Multi-team programs', 'Strategic thinking', 'Program influence']
+    },
+    'G8': {
+      title: 'Lead UX Designer',
+      description: 'Leading - Leads multiple large-scale, cross-functional programs across a product or function',
+      focus: ['Advanced leadership', 'Cross-functional programs', 'Product-level decisions', 'Senior stakeholder partnership']
+    },
+    'G9': {
+      title: 'Principal UX Designer',
+      description: 'Orchestrating - Orchestrates large-scale, complex initiatives across clouds and functions',
+      focus: ['Expert-level impact', 'Cloud-wide initiatives', 'Executive partnership', 'Organizational influence']
+    },
+    'G10': {
+      title: 'UX Architect',
+      description: 'Shaping - Shapes strategic platform-level initiatives across organizations and clouds',
+      focus: ['Strategic platform impact', 'Cross-cloud strategy', 'Investment decisions', 'Organizational transformation']
+    },
+    'G11': {
+      title: 'Principal UX Architect',
+      description: 'Transforming - Transforms mission-critical priorities across T&P and the company',
+      focus: ['Enterprise-wide vision', 'C-suite partnership', 'Company strategy', 'Industry leadership']
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Navigation and Action Buttons - aligned horizontally */}
+      <div className="flex justify-between items-center">
+        {/* Back to Dashboard Link */}
+        <button 
+          onClick={() => window.location.href = '/'}
+          className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors font-medium"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Dashboard
+        </button>
+        
+        {/* Action Buttons */}
+        <div className="flex items-center space-x-3">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
+            Save Assessment
+          </button>
+          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
+            Export to PDF
+          </button>
+          <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm">
+            Get AI Recommendations
+          </button>
+        </div>
+      </div>
+
+      {/* Header - With White Container */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">IC Self-Assessment Worksheet</h1>
             <p className="text-gray-600 dark:text-gray-400">FY26 UX Career Framework - Individual Contributor Assessment</p>
           </div>
-          <div className="mt-4 md:mt-0 flex items-center space-x-4">
+          <div className="mt-4 md:mt-0">
             <div className="bg-blue-100 dark:bg-blue-900 px-4 py-2 rounded-lg">
               <span className="text-blue-800 dark:text-blue-200 font-semibold">
                 Progress: {getProgressPercentage()}%
@@ -126,30 +438,49 @@ export default function ICWorksheet() {
         </div>
       </div>
 
-      {/* Grade Selection & Framework Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Select Your Current Grade:
-          </label>
-          <select
-            value={selectedGrade}
-            onChange={(e) => setSelectedGrade(e.target.value)}
-            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-          >
-            {grades.map(grade => (
-              <option key={grade} value={grade}>{grade}</option>
-            ))}
-          </select>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Grade expectations will auto-populate based on your selection
-          </p>
-        </div>
+      {/* Current Grade and Key Focus Areas - With White Container */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Current Grade Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Current Grade</h2>
+            <select
+              value={selectedGrade}
+              onChange={(e) => setSelectedGrade(e.target.value)}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
+            >
+              {grades.map(grade => (
+                <option key={grade.value} value={grade.value}>{grade.label}</option>
+              ))}
+            </select>
+            
+            {/* Grade Level Description */}
+            <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                IC Level {selectedGrade.replace('G', '')}: {icGradeDescriptions[selectedGrade]?.description.split(' - ')[0] || 'Orchestrating'}
+              </h3>
+              <p className="text-blue-800 dark:text-blue-200 text-sm">
+                {icGradeDescriptions[selectedGrade]?.description.split(' - ')[1] || 'As a Principal Designer you orchestrate large-scale, complex initiatives across clouds and functions'}
+              </p>
+            </div>
+          </div>
 
-        <GradeInfo userRole="ic" selectedGrade={selectedGrade} />
+          {/* Key Focus Areas */}
+          <div className="bg-yellow-50 dark:bg-yellow-900 p-6 rounded-lg border-l-4 border-yellow-400">
+            <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100 mb-4">Key Focus Areas</h3>
+            <ul className="space-y-2 text-yellow-800 dark:text-yellow-200">
+              {(icGradeDescriptions[selectedGrade]?.focus || ['Expert-level impact', 'Cloud-wide initiatives', 'Executive partnership', 'Organizational influence']).map((focus, index) => (
+                <li key={index} className="flex items-center">
+                  <span className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></span>
+                  {focus}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
 
-      {/* Pillar Filter */}
+      {/* Theme Filter Buttons - With White Container */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
         <div className="flex flex-wrap gap-2">
           {pillars.map(pillar => (
@@ -162,174 +493,311 @@ export default function ICWorksheet() {
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
-              {pillar === 'all' ? 'All Pillars' : pillar}
+              {pillar === 'all' ? 'All Themes' : pillar}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Competencies */}
-      <div className="space-y-6">
-        {filteredCompetencies.map((competency) => {
-          const assessment = getAssessment(competency.id);
-          return (
-            <div key={competency.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-              {/* Competency Header */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    {competency.name}
-                  </h3>
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      competency.category === 'shared' 
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                        : 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
-                    }`}>
-                      {competency.pillar}
-                    </span>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      competency.assessmentType === 'proficiency'
-                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                        : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
-                    }`}>
-                      {competency.assessmentType === 'proficiency' ? 'Proficiency' : 'Scope & Impact'}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  {competency.description}
-                </p>
-                {assessment.gradeExpectation > 0 && (
-                  <div className="bg-yellow-50 dark:bg-yellow-900 p-2 rounded text-sm">
-                    <span className="text-yellow-800 dark:text-yellow-200">
-                      <strong>{selectedGrade} Expectation:</strong> Level {assessment.gradeExpectation}
-                    </span>
-                  </div>
-                )}
-              </div>
+      {/* Self Assessment Instructions - With White Container */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
+          <div className="flex items-start space-x-3">
+            <div className="text-blue-600 dark:text-blue-300">
+              <span className="text-lg">💡</span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Self-Assessment Guide</h3>
+              <p className="text-blue-800 dark:text-blue-200 text-sm">
+                Each card represents a specific competency. Click on a card to rate your proficiency and provide evidence for that competency.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              {/* Level Descriptions */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                {[1, 2, 3, 4, 5].map(level => (
-                  <div key={level} className="relative">
-                    <div className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                      assessment.selfAssessment === level
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900'
-                        : assessment.gradeExpectation === level
-                          ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+      {/* Competencies - Group by pillars */}
+      <div className="space-y-6">
+        {/* Group competencies by pillar */}
+        {Object.entries(
+          filteredCompetencies.reduce((acc, comp) => {
+            if (!acc[comp.pillar]) acc[comp.pillar] = [];
+            acc[comp.pillar].push(comp);
+            return acc;
+          }, {} as Record<string, typeof filteredCompetencies>)
+        ).map(([pillarName, pillarCompetencies]) => (
+          <div key={pillarName} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500">
+            {/* Pillar Header */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {pillarName}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <span className={`px-3 py-1 rounded-full text-sm ${
+                    pillarCompetencies[0].category === 'shared' 
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                      : 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
+                  }`}>
+                    {pillarCompetencies.length} Competencies
+                  </span>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    ['Methodology', 'Acumen', 'Innovation'].includes(pillarName)
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                      : ['Delivery', 'Craft', 'Storytelling'].includes(pillarName)
+                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                        : ['Problem Solving', 'Ownership', 'Influence'].includes(pillarName)
+                          ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
+                          : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
+                  }`}>
+                    {['Methodology', 'Acumen', 'Innovation'].includes(pillarName)
+                      ? 'UX CORE'
+                      : ['Delivery', 'Craft', 'Storytelling'].includes(pillarName)
+                        ? 'EXECUTION'
+                        : ['Problem Solving', 'Ownership', 'Influence'].includes(pillarName)
+                          ? 'LEADERSHIP'
+                          : 'UX DESIGN ROLE'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+
+
+            {/* Competency Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {pillarCompetencies.map((pillComp, index) => {
+                  const pillAssessment = getAssessment(pillComp.id);
+                  const isSelected = selectedLevel[pillComp.id] !== undefined;
+                  const hasContent = hasLevelContent(pillComp.id, 1);
+                  const content = getLevelContent(pillComp.id, 1);
+                  const assessmentScale = getAssessmentScale(pillComp);
+                  const gradeExpectation = gradeExpectations[selectedGrade]?.[pillComp.id] || 0;
+                  
+                  return (
+                    <div key={pillComp.id} className={`p-3 rounded-lg border-2 transition-all cursor-pointer relative h-full flex flex-col min-h-[200px] ${
+                      isSelected
+                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 bg-white dark:bg-gray-800'
                     }`}
-                    onClick={() => updateSelfAssessment(competency.id, level)}
+                    onClick={() => {
+                      updateSelfAssessment(pillComp.id, pillAssessment.selfAssessment);
+                      selectLevel(pillComp.id, 1);
+                    }}
                     >
+                      {/* Content indicator */}
+                      {hasContent && (
+                        <div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white" 
+                             title="Has demonstrated content"></div>
+                      )}
+                      
                       <div className="text-center mb-2">
-                        <span className={`inline-block w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center ${
-                          assessment.selfAssessment === level 
-                            ? 'bg-blue-500' 
-                            : assessment.gradeExpectation === level
-                              ? 'bg-yellow-500'
-                              : 'bg-gray-400'
-                        }`}>
-                          {level}
-                        </span>
-                        {assessment.gradeExpectation === level && (
-                          <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">Expected</div>
+                        <div className="inline-flex w-10 h-10 rounded-full text-white text-lg font-bold items-center justify-center bg-blue-500 shadow-lg">
+                          {index + 1}
+                        </div>
+
+                      </div>
+                      
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 text-center">
+                        {pillComp.name}
+                      </h4>
+                      
+                      {gradeExpectation > 0 && (
+                        <div className="text-xs text-blue-600 dark:text-blue-400 mb-2 text-center font-medium">
+                          Grade Expectation: Level {gradeExpectation}
+                        </div>
+                      )}
+                      
+                      <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 flex-grow text-center">
+                        {pillComp.description}
+                      </p>
+                      
+                      {/* Assessment Dropdown */}
+                      <div className="mt-auto space-y-1">
+                        <select
+                          key={`${pillComp.id}-dropdown`}
+                          value={pillAssessment.selfAssessment || 0}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            const newValue = parseInt(e.target.value);
+                            console.log('Updating assessment for', pillComp.id, 'to value', newValue);
+                            updateSelfAssessment(pillComp.id, newValue);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full p-2 text-xs border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        >
+                          {assessmentScale.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label} ({option.value})
+                            </option>
+                          ))}
+                        </select>
+                        {pillAssessment.selfAssessment > 0 && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {assessmentScale.find(s => s.value === pillAssessment.selfAssessment)?.description}
+                          </div>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {competency.levels[level]}
-                      </p>
+                      
+                      {/* Content summary */}
+                      {content && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded mt-1">
+                          <div className="font-medium mb-1">Evidence:</div>
+                          <div className="line-clamp-2" title={content}>
+                            {content.substring(0, 80)}{content.length > 80 ? '...' : ''}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {/* Demonstrated By Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Demonstrated By (Evidence/Examples):
-                  </label>
-                  <button
-                    onClick={() => generateDemonstratedBy(competency)}
-                    className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
-                  >
-                    🤖 AI Suggest
-                  </button>
+            {/* Conditional Demonstrated By Section */}
+            {Object.keys(selectedLevel).find(compId => 
+              pillarCompetencies.some(comp => comp.id === compId)
+            ) && (() => {
+              const selectedCompId = Object.keys(selectedLevel).find(compId => 
+                pillarCompetencies.some(comp => comp.id === compId)
+              );
+              const selectedComp = pillarCompetencies.find(comp => comp.id === selectedCompId);
+                
+                if (!selectedComp) return null;
+                
+                return (
+                <div className="space-y-4 bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border-2 border-purple-300 dark:border-purple-600">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-purple-700 dark:text-purple-300">
+                      demonstrated by
+                    </label>
+                    <button
+                      onClick={(e) => generateDemonstratedBy(selectedComp, e)}
+                      className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors flex items-center space-x-1"
+                    >
+                      <span>✨</span>
+                      <span>Generate Text</span>
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <textarea
+                      value={getLevelContent(selectedComp.id, 1)}
+                      onChange={(e) => updateLevelDemonstratedBy(selectedComp.id, 1, e.target.value)}
+                      placeholder={`Describe specific examples and achievements that demonstrate your proficiency in ${selectedComp.name}...`}
+                      className="w-full p-3 pr-12 border border-purple-300 dark:border-purple-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      rows={4}
+                    />
+                    <button
+                      onClick={() => isRecording === `${selectedComp.id}-1` ? stopRecording() : startRecording(`${selectedComp.id}-1`)}
+                      className={`absolute right-2 top-2 p-2 rounded-lg transition-colors ${
+                        isRecording === `${selectedComp.id}-1`
+                          ? 'bg-red-500 text-white animate-pulse'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                      title={isRecording === `${selectedComp.id}-1` ? 'Stop recording' : 'Start voice input'}
+                    >
+                      {isRecording === `${selectedComp.id}-1` ? '⏹️' : '🎤'}
+                    </button>
+                  </div>
+                  <div className="text-xs text-purple-600 dark:text-purple-400">
+                    💡 Click on a competency card above to add evidence for that specific competency
+                  </div>
                 </div>
-                <textarea
-                  value={assessment.demonstratedBy}
-                  onChange={(e) => updateDemonstratedBy(competency.id, e.target.value)}
-                  placeholder="Describe specific examples, projects, or achievements that demonstrate this competency..."
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                  rows={3}
-                />
-              </div>
+                );
+              })()}
 
-              {/* Assessment Summary */}
-              {assessment.selfAssessment > 0 && (
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                    <p className="text-sm text-blue-800 dark:text-blue-200">
-                      <strong>Self-Assessment:</strong> Level {assessment.selfAssessment}
-                    </p>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                      {competency.levels[assessment.selfAssessment]}
-                    </p>
-                  </div>
-                  {assessment.gradeExpectation > 0 && (
-                    <div className="p-3 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
-                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        <strong>Grade Expectation:</strong> Level {assessment.gradeExpectation}
-                      </p>
-                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        {competency.levels[assessment.gradeExpectation]}
-                      </p>
-                    </div>
-                  )}
-                  {assessment.selfAssessment !== assessment.gradeExpectation && assessment.gradeExpectation > 0 && (
-                    <div className={`p-3 rounded-lg ${
-                      assessment.selfAssessment > assessment.gradeExpectation
-                        ? 'bg-green-50 dark:bg-green-900'
-                        : 'bg-orange-50 dark:bg-orange-900'
-                    }`}>
-                      <p className={`text-sm ${
-                        assessment.selfAssessment > assessment.gradeExpectation
-                          ? 'text-green-800 dark:text-green-200'
-                          : 'text-orange-800 dark:text-orange-200'
-                      }`}>
-                        <strong>Gap:</strong> {assessment.selfAssessment > assessment.gradeExpectation ? '+' : ''}{assessment.selfAssessment - assessment.gradeExpectation}
-                      </p>
-                      <p className={`text-xs mt-1 ${
-                        assessment.selfAssessment > assessment.gradeExpectation
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-orange-600 dark:text-orange-400'
-                      }`}>
-                        {assessment.selfAssessment > assessment.gradeExpectation 
-                          ? 'Exceeding expectations' 
-                          : 'Development opportunity'}
-                      </p>
-                    </div>
-                  )}
+            {/* Instruction when no competency selected */}
+            {!Object.keys(selectedLevel).some(compId => 
+              pillarCompetencies.some(comp => comp.id === compId)
+            ) && (
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    👆 Click on a competency card above to add evidence and examples for that specific competency
+                  </p>
                 </div>
               )}
-            </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 pt-6">
-        <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-          Save Assessment
-        </button>
-        <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
-          Export to PDF
-        </button>
-        <button className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
-          Get AI Career Recommendations
-        </button>
-      </div>
+
+
+      {/* Generate Text Popup */}
+      {showGenerateModal && generatePopupPosition && (
+        <>
+          {/* Backdrop */}
+          <div className="fixed inset-0 z-40" onClick={() => {
+            setShowGenerateModal(null);
+            setGeneratePopupPosition(null);
+          }}></div>
+          
+          {/* Popup */}
+          <div 
+            className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600 w-80"
+            style={{
+              top: `${generatePopupPosition.top}px`,
+              left: `${generatePopupPosition.left}px`
+            }}
+          >
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Generate Text</h3>
+                <button
+                  onClick={() => {
+                    setShowGenerateModal(null);
+                    setGeneratePopupPosition(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Features and keywords
+                  </label>
+                  <input
+                    id="features-input"
+                    type="text"
+                    placeholder="e.g. design systems, user research, accessibility"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Tone: Expert
+                  </label>
+                </div>
+                
+                <div className="flex justify-between items-center pt-2">
+                  <button
+                    onClick={() => {
+                      setShowGenerateModal(null);
+                      setGeneratePopupPosition(null);
+                    }}
+                    className="px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      const featuresInput = document.getElementById('features-input') as HTMLInputElement;
+                      handleGenerateText(showGenerateModal, featuresInput?.value || '');
+                      setGeneratePopupPosition(null);
+                    }}
+                    className="px-3 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+                  >
+                    <span>✨</span>
+                    <span>Generate</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

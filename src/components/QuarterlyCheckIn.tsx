@@ -23,9 +23,10 @@ interface QuarterlyReview {
 
 interface QuarterlyCheckInProps {
   userRole: 'ic' | 'manager';
+  onBackToDashboard?: () => void;
 }
 
-export default function QuarterlyCheckIn({ userRole }: QuarterlyCheckInProps) {
+export default function QuarterlyCheckIn({ userRole, onBackToDashboard }: QuarterlyCheckInProps) {
   const [currentReview, setCurrentReview] = useState<QuarterlyReview | null>(null);
   const [pastReviews, setPastReviews] = useState<QuarterlyReview[]>([]);
   const [activeSection, setActiveSection] = useState('overview');
@@ -378,6 +379,19 @@ export default function QuarterlyCheckIn({ userRole }: QuarterlyCheckInProps) {
 
   return (
     <div className="space-y-6">
+      {/* Back to Dashboard */}
+      {onBackToDashboard && (
+        <button 
+          onClick={onBackToDashboard}
+          className="flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200 transition-colors font-medium"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Dashboard
+        </button>
+      )}
+
       {/* Navigation */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
         <div className="flex flex-wrap gap-2">

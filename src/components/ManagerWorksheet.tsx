@@ -16,7 +16,15 @@ interface ManagerAssessment {
 export default function ManagerWorksheet() {
   const [assessments, setAssessments] = useState<ManagerAssessment[]>([]);
   const [selectedPillar, setSelectedPillar] = useState<string>('all');
-  const [selectedGrade, setSelectedGrade] = useState<string>('G8');
+  const [selectedGrade, setSelectedGrade] = useState<string>('G7');
+
+  // Load user's actual grade from localStorage
+  useEffect(() => {
+    const savedLevel = localStorage.getItem('userLevel');
+    if (savedLevel) {
+      setSelectedGrade(savedLevel);
+    }
+  }, []);
   const competencies = getManagerCompetencies();
 
   // Initialize assessments based on framework data
@@ -92,10 +100,24 @@ export default function ManagerWorksheet() {
     updateDemonstratedBy(competency.id, randomSuggestion);
   };
 
-  const pillars = ['all', ...Array.from(new Set(competencies.map(c => c.pillar)))];
+    // Define the 4 main themes and their corresponding pillars
+  const themes = {
+    'UX CORE': ['Methodology', 'Acumen', 'Innovation'],
+    'EXECUTION': ['Delivery', 'Craft', 'Storytelling'],
+    'LEADERSHIP': ['Problem Solving', 'Ownership', 'Influence'],
+    'UX DESIGN ROLE': ['User Centered Design', 'Composable Systems Thinking', 'Experience Harmony']
+  };
+
+  const pillars = ['all', ...Object.keys(themes)];
+  
   const filteredCompetencies = selectedPillar === 'all' 
     ? competencies 
-    : competencies.filter(c => c.pillar === selectedPillar);
+    : competencies.filter(c => {
+        const pillarTheme = Object.entries(themes).find(([theme, pillars]) => 
+          pillars.includes(c.pillar)
+        )?.[0];
+        return pillarTheme === selectedPillar;
+      });
 
   const getProgressPercentage = () => {
     const completed = assessments.filter(a => a.demonstratedBy && a.selfAssessment > 0).length;
@@ -113,7 +135,16 @@ export default function ManagerWorksheet() {
     };
   };
 
-  const grades = ['G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12', 'G13'];
+  // Manager Grade options matching AccountSettings exactly
+  const grades = [
+    { value: 'G7', label: 'G7 - UX Manager' },
+    { value: 'G8', label: 'G8 - UX Sr Manager' },
+    { value: 'G9', label: 'G9 - UX Design, Director' },
+    { value: 'G10', label: 'G10 - UX Design, Sr Director' },
+    { value: 'G11', label: 'G11 - UX Design, VP' },
+    { value: 'G12', label: 'G12 - UX Design, SVP' },
+    { value: 'G13', label: 'G13 - UX Design, EVP' }
+  ];
 
   return (
     <div className="space-y-6">
@@ -165,7 +196,7 @@ export default function ManagerWorksheet() {
             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           >
             {grades.map(grade => (
-              <option key={grade} value={grade}>{grade}</option>
+              <option key={grade.value} value={grade.value}>{grade.label}</option>
             ))}
           </select>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -189,7 +220,7 @@ export default function ManagerWorksheet() {
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
-              {pillar === 'all' ? 'All Pillars' : pillar}
+              {pillar === 'all' ? 'All Themes' : pillar}
             </button>
           ))}
         </div>
@@ -197,18 +228,23 @@ export default function ManagerWorksheet() {
 
       {/* Competencies */}
       <div className="space-y-6">
-        {filteredCompetencies.map((competency) => (
+        {filteredCompetencies.map((competency) => {
+          const assessment = getAssessment(competency.id);
+          return (
           <div key={competency.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             {/* Competency Header */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {competency.competency}
+                  {competency.name}
                 </h3>
                 <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm">
                   {competency.category}
                 </span>
               </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {competency.description}
+              </p>
             </div>
 
             {/* Level Descriptions */}
@@ -216,7 +252,7 @@ export default function ManagerWorksheet() {
               {[1, 2, 3, 4, 5].map(level => (
                 <div key={level} className="relative">
                   <div className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                    competency.selfAssessment === level
+                    assessment.selfAssessment === level
                       ? 'border-green-500 bg-green-50 dark:bg-green-900'
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                   }`}
@@ -224,13 +260,13 @@ export default function ManagerWorksheet() {
                   >
                     <div className="text-center mb-2">
                       <span className={`inline-block w-8 h-8 rounded-full text-white text-sm font-bold flex items-center justify-center ${
-                        competency.selfAssessment === level ? 'bg-green-500' : 'bg-gray-400'
+                        assessment.selfAssessment === level ? 'bg-green-500' : 'bg-gray-400'
                       }`}>
                         {level}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {(competency as any)[`level${level}`]}
+                      {competency.levels[level]}
                     </p>
                   </div>
                 </div>
@@ -251,7 +287,7 @@ export default function ManagerWorksheet() {
                 </button>
               </div>
               <textarea
-                value={competency.demonstratedBy}
+                value={assessment.demonstratedBy}
                 onChange={(e) => updateDemonstratedBy(competency.id, e.target.value)}
                 placeholder="Describe leadership initiatives, team outcomes, and measurable impact..."
                 className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
@@ -260,15 +296,16 @@ export default function ManagerWorksheet() {
             </div>
 
             {/* Current Assessment Display */}
-            {competency.selfAssessment > 0 && (
+            {assessment.selfAssessment > 0 && (
               <div className="mt-4 p-3 bg-green-50 dark:bg-green-900 rounded-lg">
                 <p className="text-sm text-green-800 dark:text-green-200">
-                  <strong>Current Self-Assessment:</strong> Level {competency.selfAssessment} - {(competency as any)[`level${competency.selfAssessment}`]}
+                  <strong>Current Self-Assessment:</strong> Level {assessment.selfAssessment} - {competency.levels[assessment.selfAssessment]}
                 </p>
               </div>
             )}
           </div>
-        ))}
+        );
+        })}
       </div>
 
       {/* Manager-specific Action Buttons */}

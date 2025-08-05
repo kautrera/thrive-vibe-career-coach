@@ -6,6 +6,7 @@ import ManagerWorksheet from './ManagerWorksheet';
 import WeeklyCheckIn from './WeeklyCheckIn';
 import QuarterlyCheckIn from './QuarterlyCheckIn';
 import AICoach from './AICoach';
+import V2MOM from './V2MOM';
 
 interface ProgressData {
   icProgress: number;
@@ -13,6 +14,7 @@ interface ProgressData {
   weeklyCheckIns: number;
   quarterlyCheckIns: number;
   lastActivity: string;
+  v2momProgress?: number;
 }
 
 interface DashboardProps {
@@ -26,7 +28,8 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
     managerProgress: 0,
     weeklyCheckIns: 0,
     quarterlyCheckIns: 0,
-    lastActivity: 'Never'
+    lastActivity: 'Never',
+    v2momProgress: 72 // Strategic framework implementation progress
   });
 
   useEffect(() => {
@@ -39,18 +42,7 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
 
   const [activeSection, setActiveSection] = useState<'dashboard' | 'assessment' | 'weekly-checkin' | 'quarterly-checkin' | 'ai-coach'>('dashboard');
 
-  const quickActions = [
-    { 
-      id: 'assessment',
-      title: userRole === 'ic' ? 'Complete IC Assessment' : 'Complete Manager Assessment', 
-      description: userRole === 'ic' ? 'Self-assess your IC competencies' : 'Evaluate your leadership capabilities', 
-      icon: userRole === 'ic' ? '👤' : '👥', 
-      color: userRole === 'ic' ? 'bg-blue-500' : 'bg-green-500' 
-    },
-    { id: 'weekly-checkin', title: 'Weekly Check-in', description: 'Quick weekly progress update', icon: '📅', color: 'bg-green-500' },
-    { id: 'ai-coach', title: 'Talk to AI Coach', description: 'Get personalized career advice', icon: '🤖', color: 'bg-purple-500' },
-    { id: 'quarterly-checkin', title: 'Quarterly Review', description: 'Comprehensive performance review', icon: '📈', color: 'bg-orange-500' },
-  ];
+
 
   const insights = [
     "Focus on strengthening your design systems knowledge for the next level",
@@ -64,9 +56,11 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
       case 'assessment':
         return userRole === 'ic' ? <ICWorksheet /> : <ManagerWorksheet />;
       case 'weekly-checkin':
-        return <WeeklyCheckIn userRole={userRole} />;
+        return <WeeklyCheckIn userRole={userRole} onBackToDashboard={() => setActiveSection('dashboard')} />;
       case 'quarterly-checkin':
-        return <QuarterlyCheckIn userRole={userRole} />;
+        return <QuarterlyCheckIn userRole={userRole} onBackToDashboard={() => setActiveSection('dashboard')} />;
+      case 'v2mom':
+        return <V2MOM onBackToDashboard={() => setActiveSection('dashboard')} />;
       case 'ai-coach':
         return <AICoach />;
       default:
@@ -78,29 +72,24 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className={`bg-gradient-to-r ${userRole === 'ic' ? 'from-blue-600 to-purple-600' : 'from-green-600 to-blue-600'} rounded-lg p-6 text-white`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back! 👋</h1>
-            <p className={`${userRole === 'ic' ? 'text-blue-100' : 'text-green-100'}`}>
-              Let's continue your {userRole === 'ic' ? 'IC career growth' : 'leadership'} journey at Salesforce UX
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-4xl mb-2">{userRole === 'ic' ? '👤' : '👥'}</div>
-            <p className="text-sm opacity-75">
-              {userRole === 'ic' ? 'Individual Contributor' : 'Manager'}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Welcome back! 👋</h1>
+          <p className={`${userRole === 'ic' ? 'text-blue-100' : 'text-green-100'}`}>
+            Let's continue your {userRole === 'ic' ? 'IC career growth' : 'leadership'} journey at Salesforce UX
+          </p>
         </div>
       </div>
 
       {/* Progress Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <button 
+          onClick={() => setActiveSection('assessment')}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-all text-left w-full"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                {userRole === 'ic' ? 'IC Assessment' : 'Manager Assessment'}
+                {userRole === 'ic' ? 'Self Assessment' : 'Manager Assessment'}
               </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {userRole === 'ic' ? progressData.icProgress : progressData.managerProgress}%
@@ -114,28 +103,34 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
               style={{ width: `${userRole === 'ic' ? progressData.icProgress : progressData.managerProgress}%` }}
             ></div>
           </div>
-        </div>
+        </button>
 
-        {/* Role Switch Option */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        {/* V2MOM Progress */}
+        <button 
+          onClick={() => setActiveSection('v2mom')}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-all text-left w-full"
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Current Role</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">V2MOM</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {userRole === 'ic' ? 'Individual Contributor' : 'Manager'}
+                {progressData.v2momProgress || 0}%
               </p>
             </div>
-            <button
-              onClick={() => onRoleChange(null)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
-              <span>🔄</span>
-              <span className="text-sm font-medium">Switch</span>
-            </button>
+            <div className="text-3xl">🎯</div>
           </div>
-        </div>
+          <div className="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progressData.v2momProgress || 0}%` }}
+            ></div>
+          </div>
+        </button>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <button 
+          onClick={() => setActiveSection('weekly-checkin')}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-all text-left w-full"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Weekly Check-ins</p>
@@ -144,9 +139,12 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
             <div className="text-3xl">📅</div>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">This quarter</p>
-        </div>
+        </button>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <button 
+          onClick={() => setActiveSection('quarterly-checkin')}
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-all text-left w-full"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Quarterly Reviews</p>
@@ -155,32 +153,10 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
             <div className="text-3xl">📈</div>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Completed</p>
-        </div>
+        </button>
       </div>
 
-              {/* Quick Actions */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {quickActions.map((action, index) => (
-              <button 
-                key={index} 
-                onClick={() => setActiveSection(action.id as any)}
-                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-left w-full"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center text-white text-xl`}>
-                    {action.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{action.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{action.description}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
+
 
       {/* Insights & Recommendations */}
       <div>
@@ -224,20 +200,7 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
   );
 
   return (
-    <div>
-      {/* Navigation breadcrumb for non-dashboard sections */}
-      {activeSection !== 'dashboard' && (
-        <div className="mb-6">
-          <button
-            onClick={() => setActiveSection('dashboard')}
-            className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-          >
-            <span>←</span>
-            <span>Back to Dashboard</span>
-          </button>
-        </div>
-      )}
-      
+    <div className="relative">
       {renderActiveSection()}
     </div>
   );
