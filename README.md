@@ -2,6 +2,8 @@
 
 A comprehensive career development platform built with Next.js, featuring AI-powered coaching, strategic planning, and professional growth tracking.
 
+🌐 **Live Demo**: [GitHub Pages Deployment](https://kautrera.github.io/thrive-vibe-career-coach/)
+
 ## ✨ Features
 
 ### 🎯 Core Functionality
