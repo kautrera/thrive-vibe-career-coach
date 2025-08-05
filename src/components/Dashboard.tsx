@@ -40,7 +40,7 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
     }
   }, []);
 
-  const [activeSection, setActiveSection] = useState<'dashboard' | 'assessment' | 'weekly-checkin' | 'quarterly-checkin' | 'ai-coach'>('dashboard');
+  const [activeSection, setActiveSection] = useState<'dashboard' | 'assessment' | 'weekly-checkin' | 'quarterly-checkin' | 'v2mom' | 'ai-coach'>('dashboard');
 
 
 
