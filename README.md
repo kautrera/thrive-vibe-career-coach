@@ -1,122 +1,196 @@
-# Thrive Vibe Career Coach
+# 🚀 Thrive Vibe Career Coach
 
-AI-powered UX career development platform for Salesforce UX professionals.
+A comprehensive career development platform built with Next.js, featuring AI-powered coaching, strategic planning, and professional growth tracking.
 
-## Overview
+## ✨ Features
 
-This web application digitizes the UX Career Framework spreadsheet and provides a comprehensive platform for UX Independent Contributors (ICs) and managers to track career progress, complete assessments, and receive AI-powered career guidance.
+### 🎯 Core Functionality
+- **Role-Based Assessment**: Comprehensive IC and Manager self-assessment tools
+- **V2MOM Strategic Framework**: Visual strategic planning and progress tracking
+- **Weekly & Quarterly Check-ins**: Regular performance and goal tracking
+- **AI Career Coach**: Personalized coaching with voice input/output capabilities
+- **Progress Dashboard**: Visual progress tracking across all development areas
 
-## Features
+### 🤖 AI-Powered Features
+- **Intelligent Coaching**: Multiple personality-based coaching styles (Empathetic, Polished, Strategic, Assertive)
+- **Voice Integration**: Speech-to-text input and text-to-speech output
+- **Floating AI Assistant**: Global access to AI coach from any page
+- **Chat History**: Persistent conversation history with categorization
 
-### 🏠 Dashboard
-- Progress tracking for IC and Manager assessments
-- Weekly and quarterly check-in statistics
-- Career insights and recommendations
-- Quick access to all platform features
+### 🎨 User Experience
+- **Responsive Design**: Mobile-first approach with seamless desktop experience
+- **Dark Mode Support**: Complete dark/light theme switching
+- **Accessibility**: WCAG compliant with keyboard navigation and screen reader support
+- **Professional UI**: Modern, clean interface with smooth animations
 
-### 👤 IC Worksheet
-- Interactive self-assessment for UX Individual Contributors
-- 5-level competency framework across key categories:
-  - Design Process & Methods
-  - Technical Skills
-  - Collaboration & Communication
-  - Business & Strategy
-- AI-powered suggestions for "Demonstrated By" examples
-- Progress tracking and data persistence
+## 🛠️ Technology Stack
 
-### 👥 Manager Worksheet
-- Leadership-focused assessment for UX managers
-- Management competencies including:
-  - People Leadership
-  - Strategic Leadership
-  - Operational Excellence
-  - Design Leadership
-  - Cross-functional Leadership
-- Manager-specific guidance and development planning
+- **Framework**: Next.js 15.4.5 with Turbopack
+- **Frontend**: React 19.1.0 with TypeScript
+- **Styling**: Tailwind CSS with custom design system
+- **State Management**: React hooks with localStorage persistence
+- **Voice Features**: Web Speech API integration
+- **Deployment**: Vercel-optimized with automatic deployments
 
-### 📅 Weekly Check-ins
-- Quick weekly progress updates
-- Questions derived from career framework Column C
-- Goal setting and blocker tracking
-- Win celebration and reflection
+## 🚀 Getting Started
 
-### 📈 Quarterly Reviews
-- Comprehensive performance review process
-- Goal progress assessment
-- Growth and learning documentation
-- Feedback exchange tracking
-- Future planning and career goal setting
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Modern web browser with speech API support
 
-### 🤖 AI Career Coach
-Four expert personas providing specialized guidance:
+### Installation
 
-- **Liz Ryan**: Human-centered career reinvention and workplace culture
-- **Lakrisha Davis**: Personal branding on LinkedIn and corporate navigation
-- **Madeline Mann**: Job search tips, resume, and interview coaching
-- **Margaret Buj**: Interview coaching, salary negotiation, and promotions
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/thrive-vibe-career-coach.git
+   cd thrive-vibe-career-coach
+   ```
 
-## Technical Features
-
-- ✅ **Responsive Design**: Works seamlessly on mobile and desktop
-- ✅ **Local Data Storage**: All user data stays private on your device
-- ✅ **Real-time Progress Tracking**: See your advancement across all areas
-- ✅ **AI-Powered Suggestions**: Get help completing assessments
-- ✅ **Export Capabilities**: Save assessments and reviews (planned)
-
-## Getting Started
-
-1. **Install dependencies:**
+2. **Install dependencies**
    ```bash
    npm install
+   # or
+   yarn install
    ```
 
-2. **Run the development server:**
+3. **Run the development server**
    ```bash
    npm run dev
+   # or
+   yarn dev
    ```
 
-3. **Open your browser:**
+4. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## Usage
+### Production Build
+```bash
+npm run build
+npm start
+```
 
-### First Time Setup
-1. Start with the Dashboard to get an overview
-2. Complete either IC or Manager Worksheet (or both)
-3. Set up weekly check-ins for regular progress tracking
-4. Use the AI Career Coach for personalized guidance
+## 📱 Usage Guide
 
-### Regular Usage
-- Complete weekly check-ins every week
-- Update your assessments quarterly
-- Use the AI Coach for career questions and guidance
-- Review your progress on the Dashboard
+### Getting Started
+1. **Role Selection**: Choose between Individual Contributor (IC) or Manager role
+2. **Profile Setup**: Configure your name, level, and AI coach preferences in Account Settings
+3. **Dashboard Overview**: View your progress across assessments, check-ins, and strategic goals
 
-## Data Privacy
+### Core Features
+- **Self Assessment**: Complete comprehensive skill evaluations with evidence-based responses
+- **Weekly Check-ins**: Track weekly progress, goals, and blockers
+- **Quarterly Reviews**: Conduct thorough performance reviews and planning sessions
+- **V2MOM Planning**: Engage with strategic framework (Vision, Values, Methods, Obstacles, Measures)
+- **AI Coaching**: Get personalized career guidance with voice-enabled conversations
 
-- All conversations and data are stored locally on your device
-- No data is sent to external servers
-- You maintain complete control over your career information
+### AI Coach Features
+- **Voice Input**: Click and speak your questions or use text input
+- **Personality Selection**: Choose coaching style (Empathetic, Polished, Strategic, Assertive)
+- **Floating Access**: Use the floating AI button for quick access from any page
+- **Chat History**: Review past conversations organized by topic
 
-## Future Enhancements
+## 🏗️ Project Structure
 
-- Slack integration for notifications and reminders
-- PDF export functionality for assessments and reviews
-- Enhanced analytics and progress visualization
-- Team comparison features for managers
-- Integration with Salesforce internal systems
+```
+src/
+├── app/                    # Next.js app directory
+│   ├── globals.css        # Global styles and Tailwind imports
+│   ├── layout.tsx         # Root layout with navigation
+│   └── page.tsx           # Main application entry point
+├── components/            # React components
+│   ├── AICoach.tsx        # AI coaching interface with voice features
+│   ├── AccountSettings.tsx # User profile and preferences
+│   ├── Dashboard.tsx      # Main dashboard with progress tracking
+│   ├── FloatingAICoach.tsx # Global floating AI assistant
+│   ├── ICWorksheet.tsx    # Individual contributor assessment
+│   ├── ManagerWorksheet.tsx # Manager assessment tools
+│   ├── Navigation.tsx     # Global navigation component
+│   ├── QuarterlyCheckIn.tsx # Quarterly review interface
+│   ├── V2MOM.tsx         # Strategic framework interface
+│   └── WeeklyCheckIn.tsx  # Weekly progress tracking
+├── data/                  # Data models and types
+│   └── careerFramework.ts # Career progression framework data
+└── types/                 # TypeScript type definitions
+```
 
-## Technology Stack
+## 🔧 Configuration
 
-- **Framework**: Next.js 14 with TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React hooks with localStorage persistence
-- **Icons**: Emoji-based for universal compatibility
+### Environment Variables
+Create a `.env.local` file for local development:
 
-## Contributing
+```bash
+NEXT_PUBLIC_APP_NAME="Thrive Vibe Career Coach"
+NEXT_PUBLIC_APP_VERSION="1.0.0"
+NEXT_PUBLIC_ENABLE_VOICE_FEATURES=true
+```
 
-This project follows the UX Career Framework requirements and maintains alignment with Salesforce UX standards and practices.
+### Deployment Configuration
+- **Vercel**: Automatic deployment with `vercel.json` configuration
+- **Netlify**: Compatible with standard Next.js build process
+- **GitHub Pages**: Requires static export configuration
+
+## 🚀 Deployment Options
+
+### Option 1: Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Automatic deployments on every push to main branch
+3. Preview deployments for pull requests
+4. Built-in analytics and performance monitoring
+
+### Option 2: Netlify
+1. Connect repository to Netlify
+2. Configure build settings (build command: `npm run build`)
+3. Set publish directory to `.next`
+4. Enable automatic deployments
+
+### Option 3: Manual Deployment
+1. Build the application: `npm run build`
+2. Deploy the `.next` folder to your hosting provider
+3. Configure your server to serve the Next.js application
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📋 Roadmap
+
+- [ ] **Advanced Analytics**: Detailed progress analytics and insights
+- [ ] **Team Features**: Manager team overview and team assessments
+- [ ] **Integration APIs**: Connect with HR systems and performance tools
+- [ ] **Mobile App**: Native mobile application for iOS and Android
+- [ ] **Advanced AI**: GPT-4 integration for enhanced coaching capabilities
+- [ ] **Collaboration Tools**: Peer feedback and 360-degree reviews
+
+## 🔒 Privacy & Security
+
+- **Local Storage**: All user data stored locally in browser
+- **No External Data**: No personal data sent to external services
+- **Privacy-First**: Voice data processed locally when possible
+- **Secure**: HTTPS-only deployment with security headers
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/) and [React](https://reactjs.org/)
+- Styled with [Tailwind CSS](https://tailwindcss.com/)
+- Icons and design inspiration from various open-source projects
+- Career framework based on industry best practices
+
+## 📞 Support
+
+For questions, issues, or contributions:
+- Open an issue on GitHub
+- Contact the development team
+- Check the documentation wiki
 
 ---
 
-Built with ❤️ for the Salesforce UX community
+**Built with ❤️ for career growth and professional development**
