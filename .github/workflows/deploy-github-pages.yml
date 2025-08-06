@@ -41,12 +41,16 @@ jobs:
           
       - name: Build and Export
         run: |
-          npm run deploy
+          npm run build
+          ls -la
+          touch out/.nojekyll
           
       - name: Verify output directory
         run: |
           ls -la
-          ls -la out || echo "out directory not found"
+          ls -la out/
+          echo "Contents of out directory:"
+          find out -type f | head -10
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
