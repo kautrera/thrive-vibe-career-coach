@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getManagerCompetencies, gradeExpectations, type Competency } from '@/data/careerFramework';
+import { getAllCompetencies, gradeExpectations, type Competency } from '@/data/careerFramework';
 import GradeInfo from './GradeInfo';
 
 interface ManagerAssessment {
@@ -25,7 +25,7 @@ export default function ManagerWorksheet() {
       setSelectedGrade(savedLevel);
     }
   }, []);
-  const competencies = getManagerCompetencies();
+  const competencies = getAllCompetencies();
 
   // Initialize assessments based on framework data
   useEffect(() => {

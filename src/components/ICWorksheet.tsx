@@ -18,20 +18,20 @@ interface CompetencyAssessment {
 // Assessment scales
 const PROFICIENCY_SCALE = [
   { value: 0, label: 'N/A', description: 'No skill required' },
-  { value: 2, label: 'Emergent', description: 'Basic understanding, requires support' },
-  { value: 4, label: 'Competent', description: 'Applies foundational knowledge independently' },
-  { value: 6, label: 'Proficient', description: 'Applies in-depth knowledge effectively' },
-  { value: 8, label: 'Advanced', description: 'Comprehensive and confident command' },
-  { value: 10, label: 'Expert', description: 'Deep expertise, guides others' }
+  { value: 2, label: 'Emergent', description: 'Demonstrates a basic understanding of the skill, requires support to apply it effectively' },
+  { value: 4, label: 'Competent', description: 'Applies foundational knowledge of the skill independently with growing confidence' },
+  { value: 6, label: 'Proficient', description: 'Applies in-depth knowledge of the skill independently and effectively in most relevant contexts.' },
+  { value: 8, label: 'Advanced', description: 'Demonstrates a comprehensive and confident command of the skill.' },
+  { value: 10, label: 'Expert', description: 'Exemplifies deep expertise and guides others with authority in the skill' }
 ];
 
 const SCOPE_IMPACT_SCALE = [
   { value: 0, label: 'N/A', description: 'Not Required at Level or Role' },
-  { value: 2, label: 'Foundational', description: 'Supports defined team efforts' },
-  { value: 4, label: 'Tactical', description: 'Drives execution of team deliverables' },
-  { value: 6, label: 'Strategic', description: 'Advances cross-functional programs' },
-  { value: 8, label: 'Innovative', description: 'Enhances programs driving scalable impact' },
-  { value: 10, label: 'Transformative', description: 'Rearchitects systems, drives enterprise impact' }
+  { value: 2, label: 'Foundational', description: 'foundationally supports defined team efforts and deliverables with localized, contained impact.' },
+  { value: 4, label: 'Tactical', description: 'tactically drives execution of team- or function-level deliverables, creating focused and targeted impact.' },
+  { value: 6, label: 'Strategic', description: 'strategically advances cross-functional programs and deliverables, delivering measurable business and user impact.' },
+  { value: 8, label: 'Innovative', description: 'innovatively enhances programs, systems and deliverables driving scalable impact across the organization or cloud.' },
+  { value: 10, label: 'Transformative', description: 'transformatively rearchitects systems, culture, or business processes, driving material and enduring org-wide and enterprise-level impact.' }
 ];
 
 export default function ICWorksheet() {
