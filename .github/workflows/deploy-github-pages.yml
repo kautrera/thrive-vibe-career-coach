@@ -41,8 +41,7 @@ jobs:
           
       - name: Build and Export
         run: |
-          npm run export
-          touch out/.nojekyll
+          npm run deploy
           
       - name: Verify output directory
         run: |
