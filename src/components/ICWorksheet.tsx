@@ -18,20 +18,20 @@ interface CompetencyAssessment {
 // Assessment scales
 const PROFICIENCY_SCALE = [
   { value: 0, label: 'N/A', description: 'No skill required' },
-  { value: 2, label: 'Emergent', description: 'Basic understanding, requires support' },
-  { value: 4, label: 'Competent', description: 'Applies foundational knowledge independently' },
-  { value: 6, label: 'Proficient', description: 'Applies in-depth knowledge effectively' },
-  { value: 8, label: 'Advanced', description: 'Comprehensive and confident command' },
-  { value: 10, label: 'Expert', description: 'Deep expertise, guides others' }
+  { value: 2, label: 'Emergent', description: 'Demonstrates a basic understanding of the skill, requires support to apply it effectively' },
+  { value: 4, label: 'Competent', description: 'Applies foundational knowledge of the skill independently with growing confidence' },
+  { value: 6, label: 'Proficient', description: 'Applies in-depth knowledge of the skill independently and effectively in most relevant contexts.' },
+  { value: 8, label: 'Advanced', description: 'Demonstrates a comprehensive and confident command of the skill.' },
+  { value: 10, label: 'Expert', description: 'Exemplifies deep expertise and guides others with authority in the skill' }
 ];
 
 const SCOPE_IMPACT_SCALE = [
   { value: 0, label: 'N/A', description: 'Not Required at Level or Role' },
-  { value: 2, label: 'Foundational', description: 'Supports defined team efforts' },
-  { value: 4, label: 'Tactical', description: 'Drives execution of team deliverables' },
-  { value: 6, label: 'Strategic', description: 'Advances cross-functional programs' },
-  { value: 8, label: 'Innovative', description: 'Enhances programs driving scalable impact' },
-  { value: 10, label: 'Transformative', description: 'Rearchitects systems, drives enterprise impact' }
+  { value: 2, label: 'Foundational', description: 'foundationally supports defined team efforts and deliverables with localized, contained impact.' },
+  { value: 4, label: 'Tactical', description: 'tactically drives execution of team- or function-level deliverables, creating focused and targeted impact.' },
+  { value: 6, label: 'Strategic', description: 'strategically advances cross-functional programs and deliverables, delivering measurable business and user impact.' },
+  { value: 8, label: 'Innovative', description: 'innovatively enhances programs, systems and deliverables driving scalable impact across the organization or cloud.' },
+  { value: 10, label: 'Transformative', description: 'transformatively rearchitects systems, culture, or business processes, driving material and enduring org-wide and enterprise-level impact.' }
 ];
 
 export default function ICWorksheet() {
@@ -273,15 +273,11 @@ export default function ICWorksheet() {
   
   const filteredCompetencies = selectedPillar === 'all' 
     ? competencies 
-    : competencies.filter(c => {
-        const pillarTheme = Object.entries(themes).find(([theme, pillars]) => 
-          pillars.includes(c.pillar)
-        )?.[0];
-        return pillarTheme === selectedPillar;
-      });
+    : competencies.filter(c => c.theme === selectedPillar);
 
   const getProgressPercentage = () => {
     const completed = assessments.filter(a => a.demonstratedBy && a.selfAssessment > 0).length;
+    if (assessments.length === 0) return 0;
     return Math.round((completed / assessments.length) * 100);
   };
 
@@ -534,29 +530,16 @@ export default function ICWorksheet() {
                   {pillarName}
                 </h3>
                 <div className="flex items-center space-x-2">
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    pillarCompetencies[0].category === 'shared' 
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                      : 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
-                  }`}>
-                    {pillarCompetencies.length} Competencies
-                  </span>
                   <span className={`px-2 py-1 rounded text-xs ${
-                    ['Methodology', 'Acumen', 'Innovation'].includes(pillarName)
+                    pillarCompetencies[0].theme === 'UX CORE'
                       ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                      : ['Delivery', 'Craft', 'Storytelling'].includes(pillarName)
+                      : pillarCompetencies[0].theme === 'EXECUTION'
                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                        : ['Problem Solving', 'Ownership', 'Influence'].includes(pillarName)
+                        : pillarCompetencies[0].theme === 'LEADERSHIP'
                           ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
                           : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
                   }`}>
-                    {['Methodology', 'Acumen', 'Innovation'].includes(pillarName)
-                      ? 'UX CORE'
-                      : ['Delivery', 'Craft', 'Storytelling'].includes(pillarName)
-                        ? 'EXECUTION'
-                        : ['Problem Solving', 'Ownership', 'Influence'].includes(pillarName)
-                          ? 'LEADERSHIP'
-                          : 'UX DESIGN ROLE'}
+                    {pillarCompetencies[0].theme}
                   </span>
                 </div>
               </div>
@@ -582,7 +565,13 @@ export default function ICWorksheet() {
                     }`}
                     onClick={() => {
                       updateSelfAssessment(pillComp.id, pillAssessment.selfAssessment);
-                      selectLevel(pillComp.id, 1);
+                      if (isSelected) {
+                        // If already selected, close the section
+                        setSelectedLevel({});
+                      } else {
+                        // If not selected, open the section
+                        selectLevel(pillComp.id, 1);
+                      }
                     }}
                     >
                       {/* Content indicator */}
@@ -602,11 +591,9 @@ export default function ICWorksheet() {
                         {pillComp.name}
                       </h4>
                       
-                      {gradeExpectation > 0 && (
-                        <div className="text-xs text-blue-600 dark:text-blue-400 mb-2 text-center font-medium">
-                          Grade Expectation: Level {gradeExpectation}
-                        </div>
-                      )}
+                      <div className="text-xs text-blue-600 dark:text-blue-400 mb-2 text-center font-medium">
+                        Grade Expectation: {gradeExpectation === 0 ? 'N/A (0)' : `${assessmentScale.find(scale => scale.value === gradeExpectation)?.label || 'Level'} (${gradeExpectation})`}
+                      </div>
                       
                       <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 flex-grow text-center">
                         {pillComp.description}

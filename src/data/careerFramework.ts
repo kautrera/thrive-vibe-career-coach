@@ -7,6 +7,7 @@ export interface Competency {
   description: string;
   category: 'shared' | 'role-based';
   pillar: string;
+  theme: string;
   assessmentType: 'proficiency' | 'scope-impact';
   levels: {
     [key: number]: string;
@@ -22,22 +23,23 @@ export interface CompetencyAssessment {
   managerNotes?: string;
 }
 
-// Shared Competencies (assessed with proficiency scale)
+// Shared Competencies (UX CORE, EXECUTION, LEADERSHIP - assessed with proficiency scale)
 export const sharedCompetencies: Competency[] = [
-  // UX CORE Pillar - Methodology Competencies (exactly 4 as per CSV)
+  // UX CORE - METHODOLOGY
   {
     id: 'methodology-1',
     name: 'UX Methodology Foundation',
     description: 'Learns and applies UX (Design, Eng, or Marketing) methodologies, principles, and processes to execute projects from discovery to delivery.',
     category: 'shared',
-    pillar: 'Methodology',
+    theme: 'UX CORE',
+    pillar: 'METHODOLOGY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Applies basic UX methodologies with guidance',
-      2: 'Independently applies standard UX methodologies',
-      3: 'Adapts and combines methodologies for complex problems',
-      4: 'Innovates and leads methodology adoption across teams',
-      5: 'Defines and evolves organizational UX methodology standards'
+      1: 'Basic understanding of UX methodologies',
+      2: 'Applies methodologies with guidance',
+      3: 'Independently applies standard methodologies',
+      4: 'Adapts methodologies for complex problems',
+      5: 'Innovates and leads methodology adoption'
     }
   },
   {
@@ -45,14 +47,15 @@ export const sharedCompetencies: Competency[] = [
     name: 'Process Consistency & Feedback Integration',
     description: 'Applies UX processes consistently and incorporates user and stakeholder feedback to align solutions with objectives.',
     category: 'shared',
-    pillar: 'Methodology',
+    theme: 'UX CORE',
+    pillar: 'METHODOLOGY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Applies basic UX methodologies with guidance',
-      2: 'Independently applies standard UX methodologies',
-      3: 'Adapts and combines methodologies for complex problems',
-      4: 'Innovates and leads methodology adoption across teams',
-      5: 'Defines and evolves organizational UX methodology standards'
+      1: 'Basic process application',
+      2: 'Consistent process application with feedback',
+      3: 'Integrates feedback effectively',
+      4: 'Optimizes processes based on feedback',
+      5: 'Leads process improvement initiatives'
     }
   },
   {
@@ -60,14 +63,15 @@ export const sharedCompetencies: Competency[] = [
     name: 'Methodology Adaptation & Value Articulation',
     description: 'Adapts and tailors UX methodologies to meet project needs and articulates the value of design across teams.',
     category: 'shared',
-    pillar: 'Methodology',
+    theme: 'UX CORE',
+    pillar: 'METHODOLOGY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Applies basic UX methodologies with guidance',
-      2: 'Independently applies standard UX methodologies',
-      3: 'Adapts and combines methodologies for complex problems',
-      4: 'Innovates and leads methodology adoption across teams',
-      5: 'Defines and evolves organizational UX methodology standards'
+      1: 'Basic methodology application',
+      2: 'Beginning to adapt methodologies',
+      3: 'Effectively adapts and articulates value',
+      4: 'Masters adaptation and value communication',
+      5: 'Leads methodology innovation'
     }
   },
   {
@@ -75,30 +79,33 @@ export const sharedCompetencies: Competency[] = [
     name: 'Methodology Innovation & Team Enablement',
     description: 'Refines and innovates UX methodologies to achieve business and customer goals, enabling team-wide improvements.',
     category: 'shared',
-    pillar: 'Methodology',
+    theme: 'UX CORE',
+    pillar: 'METHODOLOGY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Applies basic UX methodologies with guidance',
-      2: 'Independently applies standard UX methodologies',
-      3: 'Adapts and combines methodologies for complex problems',
-      4: 'Innovates and leads methodology adoption across teams',
-      5: 'Defines and evolves organizational UX methodology standards'
+      1: 'Basic methodology understanding',
+      2: 'Participates in improvements',
+      3: 'Contributes to methodology refinement',
+      4: 'Drives methodology innovation',
+      5: 'Establishes new methodology standards'
     }
   },
-  // Acumen Pillar - 4 competencies
+
+  // UX CORE - ACUMEN
   {
     id: 'acumen-1',
     name: 'Foundational Understanding',
     description: 'Develops foundational understanding of Salesforce customers, products, systems, and architecture by actively learning and seeking guidance.',
     category: 'shared',
-    pillar: 'Acumen',
+    theme: 'UX CORE',
+    pillar: 'ACUMEN',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Develops basic understanding with guidance',
-      2: 'Actively learns Salesforce ecosystem fundamentals',
-      3: 'Demonstrates solid understanding of customers and products',
-      4: 'Applies deep knowledge across multiple domains',
-      5: 'Masters comprehensive Salesforce ecosystem knowledge'
+      1: 'Beginning to learn Salesforce fundamentals',
+      2: 'Developing foundational understanding',
+      3: 'Solid understanding of core concepts',
+      4: 'Deep knowledge across multiple areas',
+      5: 'Expert-level comprehensive understanding'
     }
   },
   {
@@ -106,14 +113,15 @@ export const sharedCompetencies: Competency[] = [
     name: 'Ecosystem Navigation',
     description: 'Effectively navigates the Salesforce ecosystem to get things done, understanding how to operate across complex systems, align with the broader product lifecycle, and deliver business value.',
     category: 'shared',
-    pillar: 'Acumen',
+    theme: 'UX CORE',
+    pillar: 'ACUMEN',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Navigates basic systems with support',
-      2: 'Independently operates across Salesforce systems',
-      3: 'Aligns work with product lifecycle effectively',
-      4: 'Optimizes navigation across complex systems',
-      5: 'Leads ecosystem navigation best practices'
+      1: 'Basic navigation with support',
+      2: 'Independent navigation of core systems',
+      3: 'Effective cross-system operation',
+      4: 'Optimizes complex ecosystem navigation',
+      5: 'Masters and teaches ecosystem expertise'
     }
   },
   {
@@ -121,13 +129,14 @@ export const sharedCompetencies: Competency[] = [
     name: 'Specialized Knowledge Application',
     description: 'Applies specialized knowledge of specific Salesforce products, customers, or systems, and a strong understanding of the business value of design, to identify patterns, inform decisions, and solve problems across teams.',
     category: 'shared',
-    pillar: 'Acumen',
+    theme: 'UX CORE',
+    pillar: 'ACUMEN',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Applies basic specialized knowledge',
-      2: 'Independently uses product knowledge to inform decisions',
-      3: 'Identifies patterns and solves cross-team problems',
-      4: 'Leverages expertise to drive strategic outcomes',
+      1: 'Building specialized knowledge',
+      2: 'Applies knowledge to inform decisions',
+      3: 'Identifies patterns and solves problems',
+      4: 'Leverages expertise strategically',
       5: 'Establishes new knowledge frameworks'
     }
   },
@@ -136,31 +145,33 @@ export const sharedCompetencies: Competency[] = [
     name: 'Strategic Expertise & Customer Perspective',
     description: 'Leverages deep and broad expertise in Salesforce products, metrics, and emerging innovations to ensure the customer perspective shapes strategic priorities, business decisions, and team activities.',
     category: 'shared',
-    pillar: 'Acumen',
+    theme: 'UX CORE',
+    pillar: 'ACUMEN',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Understands customer perspective basics',
-      2: 'Incorporates customer insights into decisions',
-      3: 'Shapes team priorities with customer perspective',
-      4: 'Influences strategic decisions through expertise',
-      5: 'Drives organizational strategy through customer-centricity'
+      1: 'Understanding customer perspective basics',
+      2: 'Incorporating customer insights',
+      3: 'Shaping decisions with expertise',
+      4: 'Influencing strategic priorities',
+      5: 'Driving organizational strategy'
     }
   },
 
-  // Innovation Pillar - 4 competencies
+  // UX CORE - INNOVATION
   {
     id: 'innovation-1',
     name: 'Tool & Technology Application',
     description: 'Grasps and applies new tools, technologies, and systems essential for accomplishing team objectives.',
     category: 'shared',
-    pillar: 'Innovation',
+    theme: 'UX CORE',
+    pillar: 'INNOVATION',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Explores creative solutions with guidance',
-      2: 'Generates innovative ideas independently',
-      3: 'Leads innovation initiatives and inspires creative thinking',
-      4: 'Establishes innovation practices across multiple teams',
-      5: 'Drives industry-leading innovation and thought leadership'
+      1: 'Learning new tools with guidance',
+      2: 'Applies tools for team objectives',
+      3: 'Effectively utilizes diverse tools',
+      4: 'Masters and optimizes tool usage',
+      5: 'Leads tool strategy and adoption'
     }
   },
   {
@@ -168,14 +179,15 @@ export const sharedCompetencies: Competency[] = [
     name: 'Proactive Exploration & Experimentation',
     description: 'Proactively explores and experiments with new tools and technologies to enhance team performance and drive operational efficiency.',
     category: 'shared',
-    pillar: 'Innovation',
+    theme: 'UX CORE',
+    pillar: 'INNOVATION',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Explores creative solutions with guidance',
-      2: 'Generates innovative ideas independently',
-      3: 'Leads innovation initiatives and inspires creative thinking',
-      4: 'Establishes innovation practices across multiple teams',
-      5: 'Drives industry-leading innovation and thought leadership'
+      1: 'Beginning to explore new technologies',
+      2: 'Experiments with guidance',
+      3: 'Proactively explores and implements',
+      4: 'Drives innovation initiatives',
+      5: 'Establishes innovation practices'
     }
   },
   {
@@ -183,14 +195,15 @@ export const sharedCompetencies: Competency[] = [
     name: 'Technology Integration & Automation',
     description: 'Integrates new technologies and systems into workflows, identifying and implementing opportunities for automation and improvement.',
     category: 'shared',
-    pillar: 'Innovation',
+    theme: 'UX CORE',
+    pillar: 'INNOVATION',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Explores creative solutions with guidance',
-      2: 'Generates innovative ideas independently',
-      3: 'Leads innovation initiatives and inspires creative thinking',
-      4: 'Establishes innovation practices across multiple teams',
-      5: 'Drives industry-leading innovation and thought leadership'
+      1: 'Basic technology integration',
+      2: 'Identifies integration opportunities',
+      3: 'Implements technology improvements',
+      4: 'Masters workflow optimization',
+      5: 'Leads automation strategies'
     }
   },
   {
@@ -198,93 +211,99 @@ export const sharedCompetencies: Competency[] = [
     name: 'Emerging Technology Leadership',
     description: 'Leads initiatives to apply emerging technologies, guides colleagues in adoption, and elevates the innovative capabilities of the team or organization.',
     category: 'shared',
-    pillar: 'Innovation',
+    theme: 'UX CORE',
+    pillar: 'INNOVATION',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Explores creative solutions with guidance',
-      2: 'Generates innovative ideas independently',
-      3: 'Leads innovation initiatives and inspires creative thinking',
-      4: 'Establishes innovation practices across multiple teams',
-      5: 'Drives industry-leading innovation and thought leadership'
+      1: 'Learning about emerging technologies',
+      2: 'Participates in technology initiatives',
+      3: 'Contributes to technology adoption',
+      4: 'Leads technology initiatives',
+      5: 'Drives organizational innovation'
     }
   },
 
-  // Delivery Pillar - 4 competencies
+  // EXECUTION - DELIVERY
   {
     id: 'delivery-1',
-    name: 'Task Execution',
-    description: 'Delivers individual tasks on time with support and manages personal workload effectively.',
+    name: 'Task Management & Execution',
+    description: 'Manages assigned tasks using delivery tools and team processes to meet execution expectations and contribute to team goals.',
     category: 'shared',
-    pillar: 'Delivery',
+    theme: 'EXECUTION',
+    pillar: 'DELIVERY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Delivers individual tasks on time with support',
-      2: 'Consistently delivers quality work independently',
-      3: 'Manages complex deliverables and dependencies',
-      4: 'Optimizes delivery processes for multiple teams',
-      5: 'Establishes organizational delivery excellence standards'
+      1: 'Manages individual tasks with support',
+      2: 'Consistently delivers quality work',
+      3: 'Manages complex deliverables',
+      4: 'Optimizes delivery processes',
+      5: 'Establishes delivery excellence'
     }
   },
   {
     id: 'delivery-2',
-    name: 'Quality Consistency',
-    description: 'Consistently delivers quality work independently and maintains high standards.',
+    name: 'Project Planning & Coordination',
+    description: 'Plans and prioritizes work across a project using shared standards and stakeholder inputs to ensure consistent progress and coordination.',
     category: 'shared',
-    pillar: 'Delivery',
+    theme: 'EXECUTION',
+    pillar: 'DELIVERY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Delivers individual tasks on time with support',
-      2: 'Consistently delivers quality work independently',
-      3: 'Manages complex deliverables and dependencies',
-      4: 'Optimizes delivery processes for multiple teams',
-      5: 'Establishes organizational delivery excellence standards'
+      1: 'Basic project planning',
+      2: 'Effective planning and prioritization',
+      3: 'Coordinates across projects',
+      4: 'Masters complex project coordination',
+      5: 'Establishes planning excellence'
     }
   },
   {
     id: 'delivery-3',
-    name: 'Complex Project Management',
-    description: 'Manages complex deliverables and dependencies across multiple projects and teams.',
+    name: 'Cross-Team Coordination',
+    description: 'Connects initiatives across teams, tracks dependencies, manages stakeholders, and adapts plans to maintain alignment and accountability in dynamic environments.',
     category: 'shared',
-    pillar: 'Delivery',
+    theme: 'EXECUTION',
+    pillar: 'DELIVERY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Delivers individual tasks on time with support',
-      2: 'Consistently delivers quality work independently',
-      3: 'Manages complex deliverables and dependencies',
-      4: 'Optimizes delivery processes for multiple teams',
-      5: 'Establishes organizational delivery excellence standards'
+      1: 'Basic team coordination',
+      2: 'Tracks dependencies effectively',
+      3: 'Manages stakeholders and alignment',
+      4: 'Masters dynamic coordination',
+      5: 'Leads organizational coordination'
     }
   },
   {
     id: 'delivery-4',
-    name: 'Process Optimization',
-    description: 'Optimizes delivery processes for multiple teams and establishes organizational excellence standards.',
+    name: 'Strategic Delivery Alignment',
+    description: 'Aligns delivery strategy with business goals by structuring ambiguous efforts, driving decision-making, and measuring progress through shared metrics.',
     category: 'shared',
-    pillar: 'Delivery',
+    theme: 'EXECUTION',
+    pillar: 'DELIVERY',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Delivers individual tasks on time with support',
-      2: 'Consistently delivers quality work independently',
-      3: 'Manages complex deliverables and dependencies',
-      4: 'Optimizes delivery processes for multiple teams',
-      5: 'Establishes organizational delivery excellence standards'
+      1: 'Understanding business alignment',
+      2: 'Participates in strategic alignment',
+      3: 'Structures ambiguous efforts',
+      4: 'Drives strategic delivery',
+      5: 'Establishes delivery strategy'
     }
   },
 
-  // Craft Pillar - 4 competencies
+  // EXECUTION - CRAFT
   {
     id: 'craft-1',
-    name: 'Feedback Application & Standards Adherence',
+    name: 'Feedback Application & Standards',
     description: 'Applies feedback and design standards to improve work quality and meet project requirements.',
     category: 'shared',
-    pillar: 'Craft',
+    theme: 'EXECUTION',
+    pillar: 'CRAFT',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Applies feedback with guidance to meet basic standards',
-      2: 'Independently applies feedback and design standards',
-      3: 'Consistently improves work quality through standards',
-      4: 'Sets quality benchmarks across multiple teams',
-      5: 'Defines industry standards for design quality'
+      1: 'Applies feedback with guidance',
+      2: 'Consistently applies standards',
+      3: 'Improves quality through standards',
+      4: 'Sets quality benchmarks',
+      5: 'Defines industry standards'
     }
   },
   {
@@ -292,14 +311,15 @@ export const sharedCompetencies: Competency[] = [
     name: 'Thoughtful Solution Creation',
     description: 'Produces thoughtful, well-crafted solutions that align with project goals and improve overall team outcomes.',
     category: 'shared',
-    pillar: 'Craft',
+    theme: 'EXECUTION',
+    pillar: 'CRAFT',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Creates basic solutions that meet project goals',
-      2: 'Produces thoughtful, well-crafted solutions independently',
-      3: 'Aligns solutions with broader team outcomes',
-      4: 'Elevates solution quality across multiple teams',
-      5: 'Sets industry standards for solution craftsmanship'
+      1: 'Creates basic solutions',
+      2: 'Produces thoughtful solutions',
+      3: 'Aligns with broader outcomes',
+      4: 'Optimizes solution impact',
+      5: 'Establishes solution excellence'
     }
   },
   {
@@ -307,45 +327,49 @@ export const sharedCompetencies: Competency[] = [
     name: 'Scalable Design Systems',
     description: 'Creates scalable and adaptable design systems that balance quality and efficiency across teams and initiatives.',
     category: 'shared',
-    pillar: 'Craft',
+    theme: 'EXECUTION',
+    pillar: 'CRAFT',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Uses existing design systems effectively',
-      2: 'Creates scalable solutions for project needs',
-      3: 'Builds adaptable systems across teams',
-      4: 'Establishes design system standards organization-wide',
-      5: 'Defines industry practices for scalable design systems'
+      1: 'Basic system understanding',
+      2: 'Creates adaptable components',
+      3: 'Balances quality and efficiency',
+      4: 'Masters scalable systems',
+      5: 'Leads system innovation'
     }
   },
   {
     id: 'craft-4',
-    name: 'Standards Advocacy & Excellence Culture',
+    name: 'Standards Advocacy & Mentorship',
     description: 'Sets and advocates for high quality design and product standards and mentors others to uplift skills, drive consistency, and foster a culture of excellence.',
     category: 'shared',
-    pillar: 'Craft',
+    theme: 'EXECUTION',
+    pillar: 'CRAFT',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Follows established quality standards',
-      2: 'Advocates for quality standards within team',
-      3: 'Mentors others and drives consistency across teams',
-      4: 'Establishes culture of excellence organization-wide',
-      5: 'Shapes industry standards for design excellence'
+      1: 'Learning quality standards',
+      2: 'Participates in standard setting',
+      3: 'Advocates for standards',
+      4: 'Mentors and drives consistency',
+      5: 'Establishes culture of excellence'
     }
   },
-  // Storytelling Pillar - 4 competencies
+
+  // EXECUTION - STORYTELLING
   {
     id: 'storytelling-1',
     name: 'Clear Communication & Active Listening',
     description: 'Shares ideas clearly by tailoring verbal and visual communication to audience needs and confirming understanding through active listening.',
     category: 'shared',
-    pillar: 'Storytelling',
+    theme: 'EXECUTION',
+    pillar: 'STORYTELLING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Shares ideas clearly with guidance',
-      2: 'Tailors communication to audience needs independently',
-      3: 'Confirms understanding through active listening',
-      4: 'Masters audience-specific communication strategies',
-      5: 'Sets organizational standards for clear communication'
+      1: 'Basic clear communication',
+      2: 'Tailors communication effectively',
+      3: 'Masters audience-specific communication',
+      4: 'Optimizes communication impact',
+      5: 'Establishes communication excellence'
     }
   },
   {
@@ -353,29 +377,31 @@ export const sharedCompetencies: Competency[] = [
     name: 'Stakeholder Alignment & Trust Building',
     description: 'Presents ideas and perspectives in ways that align stakeholders, build trust, and support collaborative decision-making.',
     category: 'shared',
-    pillar: 'Storytelling',
+    theme: 'EXECUTION',
+    pillar: 'STORYTELLING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Presents ideas clearly to immediate team',
-      2: 'Aligns stakeholders through effective presentation',
-      3: 'Builds trust and supports collaborative decisions',
-      4: 'Masters stakeholder alignment across complex initiatives',
-      5: 'Drives organizational alignment through communication'
+      1: 'Basic presentation skills',
+      2: 'Builds stakeholder alignment',
+      3: 'Masters trust-building communication',
+      4: 'Optimizes collaborative outcomes',
+      5: 'Leads organizational alignment'
     }
   },
   {
     id: 'storytelling-3',
-    name: 'Strategic Narrative & Influence',
+    name: 'Compelling Narrative Creation',
     description: 'Crafts compelling narratives that connect strategy, context, and user needs to influence direction and drive momentum.',
     category: 'shared',
-    pillar: 'Storytelling',
+    theme: 'EXECUTION',
+    pillar: 'STORYTELLING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Crafts basic narratives with support',
-      2: 'Connects strategy and context in storytelling',
-      3: 'Influences direction through compelling narratives',
-      4: 'Drives momentum through strategic storytelling',
-      5: 'Transforms organizational direction through narrative'
+      1: 'Basic narrative creation',
+      2: 'Connects strategy and context',
+      3: 'Crafts compelling narratives',
+      4: 'Masters influential storytelling',
+      5: 'Drives organizational narrative'
     }
   },
   {
@@ -383,61 +409,65 @@ export const sharedCompetencies: Competency[] = [
     name: 'Executive Communication & Vision Translation',
     description: 'Advocates and presents with confidence across all levels, including EVP+, by translating vision into clear, credible communication tailored to diverse technical and non-technical audiences.',
     category: 'shared',
-    pillar: 'Storytelling',
+    theme: 'EXECUTION',
+    pillar: 'STORYTELLING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Presents to immediate team with confidence',
-      2: 'Communicates effectively to diverse audiences',
-      3: 'Translates vision for technical and non-technical groups',
-      4: 'Advocates confidently at executive levels',
-      5: 'Shapes industry conversations through thought leadership'
+      1: 'Learning executive communication',
+      2: 'Presents to diverse audiences',
+      3: 'Translates vision effectively',
+      4: 'Masters executive advocacy',
+      5: 'Leads organizational communication'
     }
   },
 
-  // Problem Solving Pillar - 4 competencies
+  // LEADERSHIP - PROBLEM SOLVING
   {
     id: 'problem-solving-1',
     name: 'Information Gathering & Challenge Framing',
     description: 'Gathers relevant information and frames challenges clearly to establish a strong foundation for problem-solving and informed decision-making.',
     category: 'shared',
-    pillar: 'Problem Solving',
+    theme: 'LEADERSHIP',
+    pillar: 'PROBLEM SOLVING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Gathers basic information with guidance',
-      2: 'Independently gathers relevant information and frames challenges',
-      3: 'Establishes strong foundations for problem-solving across teams',
-      4: 'Drives informed decision-making at organizational level',
-      5: 'Sets industry standards for systematic problem-solving'
+      1: 'Basic information gathering',
+      2: 'Effectively gathers and frames challenges',
+      3: 'Establishes strong problem-solving foundation',
+      4: 'Optimizes information strategy',
+      5: 'Leads problem-solving methodology'
     }
   },
   {
     id: 'problem-solving-2',
-    name: 'Complex Problem Breakdown',
+    name: 'Complex Problem Breakdown & Solution Prioritization',
     description: 'Breaks down complex problems, synthesizes inputs, and prioritizes solutions to navigate ambiguity and focus on highest-impact outcomes.',
     category: 'shared',
-    pillar: 'Problem Solving',
+    theme: 'LEADERSHIP',
+    pillar: 'PROBLEM SOLVING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Breaks down simple problems with support',
-      2: 'Independently synthesizes inputs and prioritizes solutions',
-      3: 'Navigates ambiguity and focuses on highest-impact outcomes',
-      4: 'Establishes systematic approaches across multiple teams',
-      5: 'Transforms organizational problem-solving capabilities'
+      1: 'Basic problem breakdown',
+      2: 'Synthesizes inputs effectively',
+      3: 'Navigates ambiguity and prioritizes',
+      4: 'Masters complex problem solving',
+      5: 'Establishes problem-solving excellence'
     }
   },
   {
     id: 'problem-solving-3',
-    name: 'Idea Generation & Organizational Alignment',
+    name: 'Cross-Team Insight Connection & Organizational Alignment',
     description: 'Generates ideas, reframes challenges, and connects insights across teams to align problem-solving efforts with broader organizational goals, values and vision.',
     category: 'shared',
-    pillar: 'Problem Solving',
+    theme: 'LEADERSHIP',
+    pillar: 'PROBLEM SOLVING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Generates ideas with guidance',
-      2: 'Independently reframes challenges and generates insights',
-      3: 'Connects insights across teams for organizational alignment',
-      4: 'Aligns problem-solving with organizational goals and vision',
-      5: 'Shapes industry approach to strategic problem-solving'
+      1: 'Basic idea generation',
+      2: 'Connects insights across teams',
+      3: 'Aligns with organizational goals',
+      4: 'Masters cross-team alignment',
+      5: 'Drives organizational problem-solving'
     }
   },
   {
@@ -445,46 +475,49 @@ export const sharedCompetencies: Competency[] = [
     name: 'Future Vision & Team Mobilization',
     description: 'Anticipates future challenges, has clear vision of future possibilities, drives clarity in high-ambiguity environments, and mobilizes teams to deliver sustainable, high-impact solutions.',
     category: 'shared',
-    pillar: 'Problem Solving',
+    theme: 'LEADERSHIP',
+    pillar: 'PROBLEM SOLVING',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Identifies immediate challenges with support',
-      2: 'Anticipates future challenges and drives clarity',
-      3: 'Mobilizes teams in high-ambiguity environments',
-      4: 'Delivers sustainable, high-impact organizational solutions',
-      5: 'Transforms industry standards for future-focused problem solving'
+      1: 'Learning to anticipate challenges',
+      2: 'Develops future vision',
+      3: 'Drives clarity in ambiguity',
+      4: 'Mobilizes teams for impact',
+      5: 'Establishes visionary leadership'
     }
   },
 
-  // Ownership Pillar - 4 competencies
+  // LEADERSHIP - OWNERSHIP
   {
     id: 'ownership-1',
-    name: 'Commitment & Accountability',
-    description: 'Delivers on commitments reliably, holds accountability for outcomes, and fosters positive relationships to contribute to a cohesive, collaborative environment.',
+    name: 'Reliable Delivery & Relationship Building',
+    description: 'Delivers on committments reliably, holds accountability for outcomes, and fosters positive relationships to contribute to a cohesive, collaborative environment.',
     category: 'shared',
-    pillar: 'Ownership',
+    theme: 'LEADERSHIP',
+    pillar: 'OWNERSHIP',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Delivers on commitments with support',
-      2: 'Reliably holds accountability for individual outcomes',
-      3: 'Fosters collaborative environment and team accountability',
-      4: 'Drives organizational accountability culture',
-      5: 'Models industry-leading ownership practices'
+      1: 'Basic commitment delivery',
+      2: 'Reliable delivery and accountability',
+      3: 'Fosters collaborative environment',
+      4: 'Optimizes team dynamics',
+      5: 'Establishes ownership culture'
     }
   },
   {
     id: 'ownership-2',
-    name: 'Trust & Collaboration Building',
+    name: 'Trust Building & Team Enhancement',
     description: 'Drives initiatives that build trust, inclusivity, and collaboration by sharing knowledge, resolving challenges, and enhancing team dynamics.',
     category: 'shared',
-    pillar: 'Ownership',
+    theme: 'LEADERSHIP',
+    pillar: 'OWNERSHIP',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Contributes to team trust with guidance',
-      2: 'Independently builds trust and enhances collaboration',
-      3: 'Drives initiatives that improve team dynamics',
-      4: 'Establishes trust and collaboration across organization',
-      5: 'Transforms organizational culture through ownership'
+      1: 'Basic trust building',
+      2: 'Shares knowledge and resolves challenges',
+      3: 'Builds inclusivity and collaboration',
+      4: 'Masters team enhancement',
+      5: 'Leads trust and inclusion initiatives'
     }
   },
   {
@@ -492,628 +525,692 @@ export const sharedCompetencies: Competency[] = [
     name: 'Gap Identification & Process Improvement',
     description: 'Identifies and addresses gaps in experiences and processes, taking initiative to drive improvements that benefit teams and organizational outcomes.',
     category: 'shared',
-    pillar: 'Ownership',
+    theme: 'LEADERSHIP',
+    pillar: 'OWNERSHIP',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Identifies gaps with guidance and support',
-      2: 'Independently addresses gaps and drives improvements',
-      3: 'Takes initiative for team and cross-functional improvements',
-      4: 'Drives organizational process improvements',
-      5: 'Establishes industry standards for proactive ownership'
+      1: 'Basic gap identification',
+      2: 'Addresses process gaps',
+      3: 'Drives team improvements',
+      4: 'Masters organizational improvement',
+      5: 'Establishes improvement culture'
     }
   },
   {
     id: 'ownership-4',
-    name: 'Empowerment & Autonomy Creation',
+    name: 'Structure Creation & Team Empowerment',
     description: 'Creates structures, removes barriers, and fosters autonomy to empower individuals and teams to lead, own their work, and deliver lasting business impact.',
     category: 'shared',
-    pillar: 'Ownership',
+    theme: 'LEADERSHIP',
+    pillar: 'OWNERSHIP',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Supports team autonomy with guidance',
-      2: 'Independently removes barriers and empowers others',
-      3: 'Creates structures that foster team ownership',
-      4: 'Empowers organization-wide autonomy and ownership',
-      5: 'Transforms industry standards for empowerment'
+      1: 'Learning empowerment principles',
+      2: 'Participates in structure creation',
+      3: 'Fosters team autonomy',
+      4: 'Creates empowering structures',
+      5: 'Drives organizational empowerment'
     }
   },
 
-  // Influence Pillar - 4 competencies
+  // LEADERSHIP - INFLUENCE
   {
     id: 'influence-1',
-    name: 'Relationship Building & Trust',
+    name: 'Authentic Relationships & Trust Environment',
     description: 'Establishes authentic relationships, listens actively, and understands others\' needs to create an environment of trust and psychological safety.',
     category: 'shared',
-    pillar: 'Influence',
+    theme: 'LEADERSHIP',
+    pillar: 'INFLUENCE',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Builds authentic relationships with immediate team',
-      2: 'Independently creates trust and psychological safety',
-      3: 'Establishes trust across cross-functional teams',
-      4: 'Creates organizational culture of trust and safety',
-      5: 'Models industry-leading relationship building'
+      1: 'Basic relationship building',
+      2: 'Establishes authentic relationships',
+      3: 'Creates trust and psychological safety',
+      4: 'Masters influential relationships',
+      5: 'Establishes organizational trust'
     }
   },
   {
     id: 'influence-2',
-    name: 'Strategic Perspective & Collaboration',
+    name: 'Thoughtful Perspective & Collaborative Outcomes',
     description: 'Provides thoughtful, well-founded perspectives to shape priorities, roadmaps, and collaborative outcomes across teams.',
     category: 'shared',
-    pillar: 'Influence',
+    theme: 'LEADERSHIP',
+    pillar: 'INFLUENCE',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Provides perspectives to immediate team',
-      2: 'Independently shapes team priorities and roadmaps',
-      3: 'Influences collaborative outcomes across teams',
-      4: 'Shapes organizational strategic perspectives',
-      5: 'Influences industry strategic thinking'
+      1: 'Basic perspective sharing',
+      2: 'Provides thoughtful perspectives',
+      3: 'Shapes priorities and roadmaps',
+      4: 'Masters collaborative influence',
+      5: 'Leads organizational perspective'
     }
   },
   {
     id: 'influence-3',
-    name: 'Strategic Insight & Resource Influence',
+    name: 'Strategic Insight & Cross-Department Influence',
     description: 'Uses experience, trust, credibility, and strategic insight to influence resourcing, roadmaps, and decisions that align initiatives across departments and business units.',
     category: 'shared',
-    pillar: 'Influence',
+    theme: 'LEADERSHIP',
+    pillar: 'INFLUENCE',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Influences team-level resource decisions',
-      2: 'Uses credibility to influence cross-team roadmaps',
-      3: 'Aligns initiatives across departments through influence',
-      4: 'Influences organizational resourcing and strategic decisions',
-      5: 'Shapes industry standards for strategic influence'
+      1: 'Learning strategic influence',
+      2: 'Uses experience for influence',
+      3: 'Influences cross-department decisions',
+      4: 'Masters strategic influence',
+      5: 'Drives organizational alignment'
     }
   },
   {
     id: 'influence-4',
-    name: 'Vision & Transformative Leadership',
+    name: 'Vision Shaping & Transformative Impact',
     description: 'Shapes long-term vision, inspires bold ideas, and drives momentum that achieves ambitious, transformative outcomes and recognition across the organization and broader community.',
     category: 'shared',
-    pillar: 'Influence',
+    theme: 'LEADERSHIP',
+    pillar: 'INFLUENCE',
     assessmentType: 'proficiency',
     levels: {
-      1: 'Contributes to team vision with support',
-      2: 'Independently inspires bold ideas and drives momentum',
-      3: 'Shapes transformative outcomes across teams',
-      4: 'Achieves organizational and community recognition',
-      5: 'Transforms industry through visionary leadership'
+      1: 'Learning vision development',
+      2: 'Participates in vision shaping',
+      3: 'Inspires bold ideas',
+      4: 'Drives transformative outcomes',
+      5: 'Establishes visionary influence'
     }
   }
 ];
 
-// Role-based Competencies for UX Design (assessed with scope & impact scale)
-export const uxDesignCompetencies: Competency[] = [
-  // User Centered Design Pillar - 3 competencies
+// Role-based Competencies (UX DESIGN ROLE - assessed with scope-impact scale)
+export const roleBasedCompetencies: Competency[] = [
+  // USER CENTERED DESIGN
   {
-    id: 'user-centered-design-1',
+    id: 'design-theory',
     name: 'Design Theory',
     description: 'Create intuitive, user-centered experiences using design principles, patterns, and artifacts like flows, journeys, and wireframes.',
     category: 'role-based',
-    pillar: 'User Centered Design',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'USER CENTERED DESIGN',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Applies basic design principles with guidance',
-      2: 'Tactical: Creates user flows and wireframes independently', 
-      3: 'Strategic: Designs intuitive experiences across features',
-      4: 'Innovative: Establishes design theory standards across teams',
-      5: 'Transformative: Defines industry standards for user-centered design'
+      1: 'Creates basic user-centered designs',
+      2: 'Applies design principles effectively',
+      3: 'Masters intuitive experience creation',
+      4: 'Optimizes design pattern usage',
+      5: 'Establishes design theory leadership'
     }
   },
   {
-    id: 'user-centered-design-2',
+    id: 'consistency-quality',
     name: 'Consistency & Quality',
     description: 'Ensure quality and consistency by aligning designs to usability heuristics, accessibility standards, and the design system.',
     category: 'role-based',
-    pillar: 'User Centered Design',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'USER CENTERED DESIGN',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Applies design system with guidance',
-      2: 'Tactical: Ensures consistency across features independently',
-      3: 'Strategic: Aligns designs to heuristics and standards across products',
-      4: 'Innovative: Establishes quality standards across organization',
-      5: 'Transformative: Sets industry benchmarks for design quality'
+      1: 'Basic quality standards',
+      2: 'Aligns to usability heuristics',
+      3: 'Ensures accessibility compliance',
+      4: 'Masters system consistency',
+      5: 'Establishes quality leadership'
     }
   },
   {
-    id: 'user-centered-design-3',
-    name: 'Insight Artifacts & Design Production',
+    id: 'insight-artifacts',
+    name: 'Insight Artifacts / Design Production',
     description: 'Translate research insights into foundational artifacts—such as personas and journey maps—to guide product direction.',
     category: 'role-based',
-    pillar: 'User Centered Design',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'USER CENTERED DESIGN',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Creates basic artifacts with support',
-      2: 'Tactical: Translates research into foundational artifacts',
-      3: 'Strategic: Guides product direction through insight artifacts',
-      4: 'Innovative: Establishes artifact standards across organization',
-      5: 'Transformative: Shapes industry practices for insight translation'
+      1: 'Creates basic research artifacts',
+      2: 'Translates insights effectively',
+      3: 'Guides product direction',
+      4: 'Masters insight application',
+      5: 'Establishes artifact excellence'
     }
   },
-  
-  // Composable Systems Thinking Pillar - 3 competencies
+
+  // COMPOSABLE SYSTEMS THINKING
   {
-    id: 'composable-systems-thinking-1',
+    id: 'design-architecture',
     name: 'Design Architecture',
     description: 'Define the structure and flow of user experiences—through experience maps, system models, and flow diagrams—to ensure consistency, scalability, and seamless handoff across products.',
     category: 'role-based',
-    pillar: 'Composable Systems Thinking',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'COMPOSABLE SYSTEMS THINKING',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Creates basic experience maps with guidance',
-      2: 'Tactical: Defines structure and flow independently',
-      3: 'Strategic: Ensures scalability and consistency across products',
-      4: 'Innovative: Establishes architecture standards across organization',
-      5: 'Transformative: Defines industry practices for design architecture'
+      1: 'Basic experience structure',
+      2: 'Creates effective system models',
+      3: 'Ensures consistency and scalability',
+      4: 'Masters seamless handoffs',
+      5: 'Establishes architecture leadership'
     }
   },
   {
-    id: 'composable-systems-thinking-2',
+    id: 'platform-mindset',
     name: 'Platform Mindset',
     description: 'Design flexible, modular solutions that support reuse, extensibility, and long-term platform growth.',
     category: 'role-based',
-    pillar: 'Composable Systems Thinking',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'COMPOSABLE SYSTEMS THINKING',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Uses modular components with guidance',
-      2: 'Tactical: Designs flexible solutions independently',
-      3: 'Strategic: Supports platform growth across products',
-      4: 'Innovative: Establishes platform standards across organization',
-      5: 'Transformative: Shapes industry approach to platform design'
+      1: 'Basic modular design',
+      2: 'Creates flexible solutions',
+      3: 'Supports reuse and extensibility',
+      4: 'Masters platform growth design',
+      5: 'Establishes platform leadership'
     }
   },
   {
-    id: 'composable-systems-thinking-3',
+    id: 'accessible-inclusive',
     name: 'Accessible & Inclusive Design',
     description: 'Ensure all designs meet accessibility standards and deliver inclusive experiences for diverse users and contexts.',
     category: 'role-based',
-    pillar: 'Composable Systems Thinking',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'COMPOSABLE SYSTEMS THINKING',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Applies accessibility standards with guidance',
-      2: 'Tactical: Ensures inclusive experiences independently',
-      3: 'Strategic: Delivers accessible experiences across products',
-      4: 'Innovative: Establishes accessibility standards across organization',
-      5: 'Transformative: Drives industry standards for inclusive design'
+      1: 'Basic accessibility awareness',
+      2: 'Meets accessibility standards',
+      3: 'Delivers inclusive experiences',
+      4: 'Masters diverse user needs',
+      5: 'Establishes accessibility leadership'
     }
   },
-  
-  // Experience Harmony Pillar - 3 competencies  
+
+  // EXPERIENCE HARMONY
   {
-    id: 'experience-harmony-1',
+    id: 'product-development',
     name: 'Product Development Engagement',
     description: 'Collaborate with cross-functional partners to align on goals, timelines, and requirements, using demos and design reviews to drive clarity, accelerate decision-making, and connect design work to measurable business outcome.',
     category: 'role-based',
-    pillar: 'Experience Harmony',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'EXPERIENCE HARMONY',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Collaborates with immediate team',
-      2: 'Tactical: Aligns cross-functional goals independently',
-      3: 'Strategic: Drives clarity and decision-making across products',
-      4: 'Innovative: Establishes collaboration standards across organization',
-      5: 'Transformative: Shapes industry practices for product collaboration'
+      1: 'Basic cross-functional collaboration',
+      2: 'Aligns on goals and timelines',
+      3: 'Drives clarity and decision-making',
+      4: 'Connects to business outcomes',
+      5: 'Establishes collaboration excellence'
     }
   },
   {
-    id: 'experience-harmony-2',
+    id: 'design-feedback',
     name: 'Design Feedback',
     description: 'Engage in critique and shareouts to exchange feedback, refine ideas, and ensure cohesive, high-quality user experiences.',
     category: 'role-based',
-    pillar: 'Experience Harmony',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'EXPERIENCE HARMONY',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Participates in feedback with guidance',
-      2: 'Tactical: Engages in critique independently',
-      3: 'Strategic: Ensures cohesive experiences through feedback',
-      4: 'Innovative: Establishes feedback culture across organization',
-      5: 'Transformative: Sets industry standards for design critique'
+      1: 'Basic feedback participation',
+      2: 'Engages in critique effectively',
+      3: 'Refines ideas through feedback',
+      4: 'Ensures cohesive experiences',
+      5: 'Establishes feedback excellence'
     }
   },
   {
-    id: 'experience-harmony-3',
+    id: 'iterative-development',
     name: 'Iterative Development',
     description: 'Use feedback, testing, and data to iteratively improve flows and prototypes in response to evolving user needs.',
     category: 'role-based',
-    pillar: 'Experience Harmony',
+    theme: 'UX DESIGN ROLE',
+    pillar: 'EXPERIENCE HARMONY',
     assessmentType: 'scope-impact',
     levels: {
-      1: 'Foundational: Uses feedback with guidance',
-      2: 'Tactical: Iteratively improves designs independently',
-      3: 'Strategic: Responds to evolving needs across products',
-      4: 'Innovative: Establishes iterative practices across organization',
-      5: 'Transformative: Drives industry standards for iterative design'
+      1: 'Basic iterative improvement',
+      2: 'Uses feedback and testing effectively',
+      3: 'Improves flows iteratively',
+      4: 'Masters user-driven iteration',
+      5: 'Establishes iterative excellence'
     }
   }
 ];
 
-// Manager-specific competencies (additions to shared competencies)
-export const managerCompetencies: Competency[] = [
-  {
-    id: 'people-development',
-    name: 'People Development',
-    description: 'Growing and developing team members and their careers',
-    category: 'shared',
-    pillar: 'LEADERSHIP',
-    assessmentType: 'proficiency',
-    levels: {
-      1: 'Provides basic feedback and support to team members',
-      2: 'Actively coaches and develops individual contributors',
-      3: 'Builds high-performing teams and develops other managers',
-      4: 'Establishes talent development practices across organization',
-      5: 'Shapes industry standards for design talent development'
-    }
-  },
-  {
-    id: 'strategic-leadership',
-    name: 'Strategic Leadership',
-    description: 'Setting vision, strategy, and direction for design teams',
-    category: 'shared',
-    pillar: 'LEADERSHIP',
-    assessmentType: 'proficiency',
-    levels: {
-      1: 'Communicates team vision and aligns with strategy',
-      2: 'Develops strategic initiatives for team/product area',
-      3: 'Influences organizational strategy through design leadership',
-      4: 'Shapes business strategy and drives organizational transformation',
-      5: 'Defines industry direction and thought leadership'
-    }
-  },
-  {
-    id: 'operational-excellence',
-    name: 'Operational Excellence',
-    description: 'Building efficient processes and systems for team success',
-    category: 'shared',
-    pillar: 'EXECUTION',
-    assessmentType: 'proficiency',
-    levels: {
-      1: 'Manages team processes and workflows effectively',
-      2: 'Optimizes operations and scales team capabilities',
-      3: 'Establishes operational excellence across multiple teams',
-      4: 'Drives organizational operational transformation',
-      5: 'Sets industry benchmarks for design operations'
-    }
-  }
-];
+// Combine all competencies
+export const getAllCompetencies = (): Competency[] => {
+  return [...sharedCompetencies, ...roleBasedCompetencies];
+};
 
-// Grade expectations (1-5 scale mapping)
+// Grade expectations based on CSV data
 export const gradeExpectations: { [grade: string]: { [competencyId: string]: number } } = {
   'G5': {
-    'methodology-1': 2,
-    'methodology-2': 2,
-    'methodology-3': 0,
-    'methodology-4': 0,
-    'acumen-1': 2,
-    'acumen-2': 2,
-    'acumen-3': 0,
-    'acumen-4': 0,
-    'innovation-1': 2,
-    'innovation-2': 2,
-    'innovation-3': 0,
-    'innovation-4': 0,
-    'delivery-1': 2,
-    'delivery-2': 2,
-    'delivery-3': 0,
-    'delivery-4': 0,
-    'craft-1': 2,
-    'craft-2': 2,
-    'craft-3': 0,
-    'craft-4': 0,
-    'storytelling-1': 2,
-    'storytelling-2': 2,
-    'storytelling-3': 0,
-    'storytelling-4': 0,
-    'problem-solving-1': 2,
-    'problem-solving-2': 2,
-    'problem-solving-3': 0,
-    'problem-solving-4': 0,
-    'ownership-1': 2,
-    'ownership-2': 2,
-    'ownership-3': 0,
-    'ownership-4': 0,
-    'influence-1': 2,
-    'influence-2': 2,
-    'influence-3': 0,
-    'influence-4': 0,
-    'user-centered-design-1': 2,
-    'user-centered-design-2': 2,
-    'user-centered-design-3': 0,
-    'composable-systems-thinking-1': 2,
-    'composable-systems-thinking-2': 2,
-    'composable-systems-thinking-3': 0,
-    'experience-harmony-1': 2,
-    'experience-harmony-2': 2,
-    'experience-harmony-3': 0
+    // UX CORE - METHODOLOGY
+    'methodology-1': 2, // Emergent
+    'methodology-2': 2, // Emergent
+    'methodology-3': 0, // N/A
+    'methodology-4': 0, // N/A
+    // UX CORE - ACUMEN
+    'acumen-1': 2, // Emergent
+    'acumen-2': 2, // Emergent
+    'acumen-3': 0, // N/A
+    'acumen-4': 0, // N/A
+    // UX CORE - INNOVATION
+    'innovation-1': 2, // Emergent
+    'innovation-2': 2, // Emergent
+    'innovation-3': 0, // N/A
+    'innovation-4': 0, // N/A
+    // EXECUTION - DELIVERY
+    'delivery-1': 4, // Competent
+    'delivery-2': 2, // Emergent
+    'delivery-3': 0, // N/A
+    'delivery-4': 0, // N/A
+    // EXECUTION - CRAFT
+    'craft-1': 4, // Competent
+    'craft-2': 2, // Emergent
+    'craft-3': 0, // N/A
+    'craft-4': 0, // N/A
+    // EXECUTION - STORYTELLING
+    'storytelling-1': 2, // Emergent
+    'storytelling-2': 2, // Emergent
+    'storytelling-3': 0, // N/A
+    'storytelling-4': 0, // N/A
+    // LEADERSHIP - PROBLEM SOLVING
+    'problem-solving-1': 4, // Competent
+    'problem-solving-2': 2, // Emergent
+    'problem-solving-3': 0, // N/A
+    'problem-solving-4': 0, // N/A
+    // LEADERSHIP - OWNERSHIP
+    'ownership-1': 4, // Competent
+    'ownership-2': 2, // Emergent
+    'ownership-3': 0, // N/A
+    'ownership-4': 0, // N/A
+    // LEADERSHIP - INFLUENCE
+    'influence-1': 2, // Emergent
+    'influence-2': 0, // N/A
+    'influence-3': 0, // N/A
+    'influence-4': 0, // N/A
+    // UX DESIGN ROLE - USER CENTERED DESIGN
+    'design-theory': 2, // Foundational
+    'consistency-quality': 2, // Foundational
+    'insight-artifacts': 0, // N/A
+    // UX DESIGN ROLE - COMPOSABLE SYSTEMS THINKING
+    'design-architecture': 2, // Foundational
+    'platform-mindset': 2, // Foundational
+    'accessible-inclusive': 0, // N/A
+    // UX DESIGN ROLE - EXPERIENCE HARMONY
+    'product-development': 2, // Foundational
+    'design-feedback': 0, // N/A
+    'iterative-development': 0, // N/A
   },
   'G6': {
-    'methodology-1': 2,
-    'methodology-2': 2,
-    'methodology-3': 2,
-    'methodology-4': 0,
-    'acumen-1': 2,
-    'acumen-2': 2,
-    'acumen-3': 2,
-    'acumen-4': 0,
-    'innovation-1': 2,
-    'innovation-2': 2,
-    'innovation-3': 2,
-    'innovation-4': 0,
-    'delivery-1': 2,
-    'delivery-2': 2,
-    'delivery-3': 2,
-    'delivery-4': 0,
-    'craft-1': 2,
-    'craft-2': 2,
-    'craft-3': 2,
-    'craft-4': 0,
-    'storytelling-1': 2,
-    'storytelling-2': 2,
-    'storytelling-3': 0,
-    'storytelling-4': 0,
-    'problem-solving-1': 2,
-    'problem-solving-2': 2,
-    'problem-solving-3': 2,
-    'problem-solving-4': 0,
-    'ownership-1': 2,
-    'ownership-2': 2,
-    'ownership-3': 2,
-    'ownership-4': 0,
-    'influence-1': 2,
-    'influence-2': 2,
-    'influence-3': 2,
-    'influence-4': 0,
-    'user-centered-design-1': 2,
-    'user-centered-design-2': 2,
-    'user-centered-design-3': 2,
-    'composable-systems-thinking-1': 2,
-    'composable-systems-thinking-2': 2,
-    'composable-systems-thinking-3': 2,
-    'experience-harmony-1': 2,
-    'experience-harmony-2': 2,
-    'experience-harmony-3': 2
+    // UX CORE - METHODOLOGY
+    'methodology-1': 4, // Competent
+    'methodology-2': 4, // Competent
+    'methodology-3': 2, // Emergent
+    'methodology-4': 0, // N/A
+    // UX CORE - ACUMEN
+    'acumen-1': 4, // Competent
+    'acumen-2': 4, // Competent
+    'acumen-3': 2, // Emergent
+    'acumen-4': 0, // N/A
+    // UX CORE - INNOVATION
+    'innovation-1': 4, // Competent
+    'innovation-2': 2, // Emergent
+    'innovation-3': 2, // Emergent
+    'innovation-4': 0, // N/A
+    // EXECUTION - DELIVERY
+    'delivery-1': 6, // Proficient
+    'delivery-2': 4, // Competent
+    'delivery-3': 2, // Emergent
+    'delivery-4': 0, // N/A
+    // EXECUTION - CRAFT
+    'craft-1': 6, // Proficient
+    'craft-2': 4, // Competent
+    'craft-3': 2, // Emergent
+    'craft-4': 0, // N/A
+    // EXECUTION - STORYTELLING
+    'storytelling-1': 4, // Competent
+    'storytelling-2': 2, // Emergent
+    'storytelling-3': 0, // N/A
+    'storytelling-4': 0, // N/A
+    // LEADERSHIP - PROBLEM SOLVING
+    'problem-solving-1': 6, // Proficient
+    'problem-solving-2': 4, // Competent
+    'problem-solving-3': 2, // Emergent
+    'problem-solving-4': 0, // N/A
+    // LEADERSHIP - OWNERSHIP
+    'ownership-1': 6, // Proficient
+    'ownership-2': 4, // Competent
+    'ownership-3': 2, // Emergent
+    'ownership-4': 0, // N/A
+    // LEADERSHIP - INFLUENCE
+    'influence-1': 4, // Competent
+    'influence-2': 2, // Emergent
+    'influence-3': 0, // N/A
+    'influence-4': 0, // N/A
+    // UX DESIGN ROLE - USER CENTERED DESIGN
+    'design-theory': 4, // Tactical
+    'consistency-quality': 4, // Tactical
+    'insight-artifacts': 2, // Foundational
+    // UX DESIGN ROLE - COMPOSABLE SYSTEMS THINKING
+    'design-architecture': 4, // Tactical
+    'platform-mindset': 4, // Tactical
+    'accessible-inclusive': 0, // N/A
+    // UX DESIGN ROLE - EXPERIENCE HARMONY
+    'product-development': 4, // Tactical
+    'design-feedback': 2, // Foundational
+    'iterative-development': 0, // N/A
   },
   'G7': {
-    'methodology-1': 4,
-    'methodology-2': 4,
-    'methodology-3': 2,
-    'methodology-4': 0,
-    'acumen-1': 4,
-    'acumen-2': 4,
-    'acumen-3': 2,
-    'acumen-4': 0,
-    'innovation-1': 4,
-    'innovation-2': 4,
-    'innovation-3': 2,
-    'innovation-4': 0,
-    'delivery-1': 4,
-    'delivery-2': 4,
-    'delivery-3': 2,
-    'delivery-4': 0,
-    'craft-1': 4,
-    'craft-2': 4,
-    'craft-3': 2,
-    'craft-4': 0,
-    'storytelling-1': 2,
-    'storytelling-2': 2,
-    'storytelling-3': 2,
-    'storytelling-4': 0,
-    'problem-solving-1': 4,
-    'problem-solving-2': 4,
-    'problem-solving-3': 2,
-    'problem-solving-4': 2,
-    'ownership-1': 4,
-    'ownership-2': 4,
-    'ownership-3': 2,
-    'ownership-4': 2,
-    'influence-1': 4,
-    'influence-2': 4,
-    'influence-3': 2,
-    'influence-4': 2,
-    'user-centered-design': 2,
-    'composable-systems-thinking': 2,
-    'experience-harmony': 2
+    // UX CORE - METHODOLOGY
+    'methodology-1': 6, // Proficient
+    'methodology-2': 6, // Proficient
+    'methodology-3': 4, // Competent
+    'methodology-4': 0, // N/A
+    // UX CORE - ACUMEN
+    'acumen-1': 6, // Proficient
+    'acumen-2': 6, // Proficient
+    'acumen-3': 4, // Competent
+    'acumen-4': 0, // N/A
+    // UX CORE - INNOVATION
+    'innovation-1': 6, // Proficient
+    'innovation-2': 4, // Competent
+    'innovation-3': 4, // Competent
+    'innovation-4': 0, // N/A
+    // EXECUTION - DELIVERY
+    'delivery-1': 6, // Proficient
+    'delivery-2': 6, // Proficient
+    'delivery-3': 6, // Proficient
+    'delivery-4': 4, // Competent
+    // EXECUTION - CRAFT
+    'craft-1': 6, // Proficient
+    'craft-2': 6, // Proficient
+    'craft-3': 4, // Competent
+    'craft-4': 4, // Competent
+    // EXECUTION - STORYTELLING
+    'storytelling-1': 6, // Proficient
+    'storytelling-2': 6, // Proficient
+    'storytelling-3': 4, // Competent
+    'storytelling-4': 0, // N/A
+    // LEADERSHIP - PROBLEM SOLVING
+    'problem-solving-1': 6, // Proficient
+    'problem-solving-2': 6, // Proficient
+    'problem-solving-3': 4, // Competent
+    'problem-solving-4': 2, // Emergent
+    // LEADERSHIP - OWNERSHIP
+    'ownership-1': 6, // Proficient
+    'ownership-2': 6, // Proficient
+    'ownership-3': 4, // Competent
+    'ownership-4': 0, // N/A
+    // LEADERSHIP - INFLUENCE
+    'influence-1': 6, // Proficient
+    'influence-2': 4, // Competent
+    'influence-3': 2, // Emergent
+    'influence-4': 0, // N/A
+    // UX DESIGN ROLE - USER CENTERED DESIGN
+    'design-theory': 4, // Tactical
+    'consistency-quality': 4, // Tactical
+    'insight-artifacts': 4, // Tactical
+    // UX DESIGN ROLE - COMPOSABLE SYSTEMS THINKING
+    'design-architecture': 6, // Strategic
+    'platform-mindset': 4, // Tactical
+    'accessible-inclusive': 2, // Foundational
+    // UX DESIGN ROLE - EXPERIENCE HARMONY
+    'product-development': 4, // Tactical
+    'design-feedback': 4, // Tactical
+    'iterative-development': 2, // Foundational
   },
   'G8': {
-    'methodology-1': 3,
-    'methodology-2': 2,
-    'methodology-3': 2,
-    'methodology-4': 1,
-    'acumen': 2,
-    'innovation': 2,
-    'delivery': 3,
-    'craft': 3,
-    'storytelling': 3,
-    'problem-solving-1': 4,
-    'problem-solving-2': 4,
-    'problem-solving-3': 4,
-    'problem-solving-4': 2,
-    'ownership-1': 4,
-    'ownership-2': 4,
-    'ownership-3': 4,
-    'ownership-4': 2,
-    'influence-1': 4,
-    'influence-2': 4,
-    'influence-3': 4,
-    'influence-4': 2,
-    'user-centered-design': 3,
-    'composable-systems-thinking': 2,
-    'experience-harmony': 3
+    // UX CORE - METHODOLOGY
+    'methodology-1': 6, // Proficient
+    'methodology-2': 6, // Proficient
+    'methodology-3': 6, // Proficient
+    'methodology-4': 4, // Competent
+    // UX CORE - ACUMEN
+    'acumen-1': 8, // Advanced
+    'acumen-2': 8, // Advanced
+    'acumen-3': 6, // Proficient
+    'acumen-4': 4, // Competent
+    // UX CORE - INNOVATION
+    'innovation-1': 6, // Proficient
+    'innovation-2': 6, // Proficient
+    'innovation-3': 4, // Competent
+    'innovation-4': 4, // Competent
+    // EXECUTION - DELIVERY
+    'delivery-1': 8, // Advanced
+    'delivery-2': 8, // Advanced
+    'delivery-3': 6, // Proficient
+    'delivery-4': 6, // Proficient
+    // EXECUTION - CRAFT
+    'craft-1': 8, // Advanced
+    'craft-2': 8, // Advanced
+    'craft-3': 6, // Proficient
+    'craft-4': 6, // Proficient
+    // EXECUTION - STORYTELLING
+    'storytelling-1': 8, // Advanced
+    'storytelling-2': 6, // Proficient
+    'storytelling-3': 6, // Proficient
+    'storytelling-4': 4, // Competent
+    // LEADERSHIP - PROBLEM SOLVING
+    'problem-solving-1': 8, // Advanced
+    'problem-solving-2': 8, // Advanced
+    'problem-solving-3': 6, // Proficient
+    'problem-solving-4': 6, // Proficient
+    // LEADERSHIP - OWNERSHIP
+    'ownership-1': 8, // Advanced
+    'ownership-2': 8, // Advanced
+    'ownership-3': 6, // Proficient
+    'ownership-4': 6, // Proficient
+    // LEADERSHIP - INFLUENCE
+    'influence-1': 8, // Advanced
+    'influence-2': 6, // Proficient
+    'influence-3': 4, // Competent
+    'influence-4': 4, // Competent
+    // UX DESIGN ROLE - USER CENTERED DESIGN
+    'design-theory': 6, // Strategic
+    'consistency-quality': 6, // Strategic
+    'insight-artifacts': 6, // Strategic
+    // UX DESIGN ROLE - COMPOSABLE SYSTEMS THINKING
+    'design-architecture': 8, // Innovative
+    'platform-mindset': 6, // Strategic
+    'accessible-inclusive': 4, // Tactical
+    // UX DESIGN ROLE - EXPERIENCE HARMONY
+    'product-development': 6, // Strategic
+    'design-feedback': 6, // Strategic
+    'iterative-development': 4, // Tactical
   },
   'G9': {
-    'methodology-1': 3,
-    'methodology-2': 3,
-    'methodology-3': 2,
-    'methodology-4': 2,
-    'acumen': 3,
-    'innovation': 3,
-    'delivery': 3,
-    'craft': 3,
-    'storytelling': 3,
-    'problem-solving-1': 6,
-    'problem-solving-2': 6,
-    'problem-solving-3': 4,
-    'problem-solving-4': 4,
-    'ownership-1': 6,
-    'ownership-2': 6,
-    'ownership-3': 4,
-    'ownership-4': 4,
-    'influence-1': 6,
-    'influence-2': 6,
-    'influence-3': 4,
-    'influence-4': 4,
-    'user-centered-design': 3,
-    'composable-systems-thinking': 3,
-    'experience-harmony': 3
+    // UX CORE - METHODOLOGY
+    'methodology-1': 8, // Advanced
+    'methodology-2': 8, // Advanced
+    'methodology-3': 8, // Advanced
+    'methodology-4': 6, // Proficient
+    // UX CORE - ACUMEN
+    'acumen-1': 8, // Advanced
+    'acumen-2': 8, // Advanced
+    'acumen-3': 8, // Advanced
+    'acumen-4': 6, // Proficient
+    // UX CORE - INNOVATION
+    'innovation-1': 8, // Advanced
+    'innovation-2': 8, // Advanced
+    'innovation-3': 6, // Proficient
+    'innovation-4': 6, // Proficient
+    // EXECUTION - DELIVERY
+    'delivery-1': 10, // Expert
+    'delivery-2': 8, // Advanced
+    'delivery-3': 8, // Advanced
+    'delivery-4': 8, // Advanced
+    // EXECUTION - CRAFT
+    'craft-1': 10, // Expert
+    'craft-2': 8, // Advanced
+    'craft-3': 8, // Advanced
+    'craft-4': 8, // Advanced
+    // EXECUTION - STORYTELLING
+    'storytelling-1': 10, // Expert
+    'storytelling-2': 8, // Advanced
+    'storytelling-3': 6, // Proficient
+    'storytelling-4': 6, // Proficient
+    // LEADERSHIP - PROBLEM SOLVING
+    'problem-solving-1': 10, // Expert
+    'problem-solving-2': 8, // Advanced
+    'problem-solving-3': 8, // Advanced
+    'problem-solving-4': 8, // Advanced
+    // LEADERSHIP - OWNERSHIP
+    'ownership-1': 10, // Expert
+    'ownership-2': 8, // Advanced
+    'ownership-3': 8, // Advanced
+    'ownership-4': 8, // Advanced
+    // LEADERSHIP - INFLUENCE
+    'influence-1': 10, // Expert
+    'influence-2': 8, // Advanced
+    'influence-3': 6, // Proficient
+    'influence-4': 6, // Proficient
+    // UX DESIGN ROLE - USER CENTERED DESIGN
+    'design-theory': 8, // Innovative
+    'consistency-quality': 8, // Innovative
+    'insight-artifacts': 8, // Innovative
+    // UX DESIGN ROLE - COMPOSABLE SYSTEMS THINKING
+    'design-architecture': 8, // Innovative
+    'platform-mindset': 8, // Innovative
+    'accessible-inclusive': 6, // Strategic
+    // UX DESIGN ROLE - EXPERIENCE HARMONY
+    'product-development': 8, // Innovative
+    'design-feedback': 8, // Innovative
+    'iterative-development': 6, // Strategic
   },
   'G10': {
-    'methodology-1': 4,
-    'methodology-2': 3,
-    'methodology-3': 3,
-    'methodology-4': 2,
-    'acumen': 3,
-    'innovation': 3,
-    'delivery': 4,
-    'craft': 4,
-    'storytelling': 4,
-    'problem-solving-1': 6,
-    'problem-solving-2': 6,
-    'problem-solving-3': 6,
-    'problem-solving-4': 4,
-    'ownership-1': 6,
-    'ownership-2': 6,
-    'ownership-3': 6,
-    'ownership-4': 4,
-    'influence-1': 6,
-    'influence-2': 6,
-    'influence-3': 6,
-    'influence-4': 4,
-    'user-centered-design': 4,
-    'composable-systems-thinking': 3,
-    'experience-harmony': 4
+    // UX CORE - METHODOLOGY
+    'methodology-1': 10, // Expert
+    'methodology-2': 10, // Expert
+    'methodology-3': 10, // Expert
+    'methodology-4': 8, // Advanced
+    // UX CORE - ACUMEN
+    'acumen-1': 10, // Expert
+    'acumen-2': 10, // Expert
+    'acumen-3': 8, // Advanced
+    'acumen-4': 6, // Proficient
+    // UX CORE - INNOVATION
+    'innovation-1': 10, // Expert
+    'innovation-2': 10, // Expert
+    'innovation-3': 8, // Advanced
+    'innovation-4': 8, // Advanced
+    // EXECUTION - DELIVERY
+    'delivery-1': 10, // Expert
+    'delivery-2': 10, // Expert
+    'delivery-3': 10, // Expert
+    'delivery-4': 8, // Advanced
+    // EXECUTION - CRAFT
+    'craft-1': 10, // Expert
+    'craft-2': 10, // Expert
+    'craft-3': 10, // Expert
+    'craft-4': 8, // Advanced
+    // EXECUTION - STORYTELLING
+    'storytelling-1': 10, // Expert
+    'storytelling-2': 10, // Expert
+    'storytelling-3': 8, // Advanced
+    'storytelling-4': 8, // Advanced
+    // LEADERSHIP - PROBLEM SOLVING
+    'problem-solving-1': 10, // Expert
+    'problem-solving-2': 10, // Expert
+    'problem-solving-3': 8, // Advanced
+    'problem-solving-4': 8, // Advanced
+    // LEADERSHIP - OWNERSHIP
+    'ownership-1': 10, // Expert
+    'ownership-2': 10, // Expert
+    'ownership-3': 8, // Advanced
+    'ownership-4': 8, // Advanced
+    // LEADERSHIP - INFLUENCE
+    'influence-1': 10, // Expert
+    'influence-2': 10, // Expert
+    'influence-3': 8, // Advanced
+    'influence-4': 8, // Advanced
+    // UX DESIGN ROLE - USER CENTERED DESIGN
+    'design-theory': 10, // Transformative
+    'consistency-quality': 10, // Transformative
+    'insight-artifacts': 8, // Innovative
+    // UX DESIGN ROLE - COMPOSABLE SYSTEMS THINKING
+    'design-architecture': 10, // Transformative
+    'platform-mindset': 8, // Innovative
+    'accessible-inclusive': 8, // Innovative
+    // UX DESIGN ROLE - EXPERIENCE HARMONY
+    'product-development': 10, // Transformative
+    'design-feedback': 8, // Innovative
+    'iterative-development': 8, // Innovative
   },
   'G11': {
-    'methodology-1': 4,
-    'methodology-2': 4,
-    'methodology-3': 3,
-    'methodology-4': 3,
-    'acumen': 4,
-    'innovation': 4,
-    'delivery': 4,
-    'craft': 4,
-    'storytelling': 4,
-    'problem-solving-1': 8,
-    'problem-solving-2': 8,
-    'problem-solving-3': 6,
-    'problem-solving-4': 6,
-    'ownership-1': 8,
-    'ownership-2': 8,
-    'ownership-3': 6,
-    'ownership-4': 6,
-    'influence-1': 8,
-    'influence-2': 8,
-    'influence-3': 6,
-    'influence-4': 6,
-    'user-centered-design': 4,
-    'composable-systems-thinking': 4,
-    'experience-harmony': 4
-  },
-  // Manager grades (G7-G13 - Management starts at G7)
-  'G12': {
-    'methodology-1': 5,
-    'methodology-2': 4,
-    'methodology-3': 4,
-    'methodology-4': 3,
-    'acumen': 4,
-    'innovation': 4,
-    'delivery': 5,
-    'craft': 4,
-    'storytelling': 5,
-    'problem-solving-1': 8,
-    'problem-solving-2': 8,
-    'problem-solving-3': 8,
-    'problem-solving-4': 6,
-    'ownership-1': 8,
-    'ownership-2': 8,
-    'ownership-3': 8,
-    'ownership-4': 6,
-    'influence-1': 8,
-    'influence-2': 8,
-    'influence-3': 8,
-    'influence-4': 6,
-    'user-centered-design': 5,
-    'composable-systems-thinking': 4,
-    'experience-harmony': 5,
-    'people-development': 4,
-    'strategic-leadership': 4,
-    'operational-excellence': 4
-  },
-  'G13': {
-    'methodology-1': 5,
-    'methodology-2': 5,
-    'methodology-3': 4,
-    'methodology-4': 4,
-    'acumen': 5,
-    'innovation': 5,
-    'delivery': 5,
-    'craft': 5,
-    'storytelling': 5,
-    'problem-solving-1': 10,
-    'problem-solving-2': 10,
-    'problem-solving-3': 8,
-    'problem-solving-4': 8,
-    'ownership-1': 10,
-    'ownership-2': 10,
-    'ownership-3': 8,
-    'ownership-4': 8,
-    'influence-1': 10,
-    'influence-2': 10,
-    'influence-3': 8,
-    'influence-4': 8,
-    'user-centered-design': 5,
-    'composable-systems-thinking': 5,
-    'experience-harmony': 5,
-    'people-development': 5,
-    'strategic-leadership': 5,
-    'operational-excellence': 5
+    // UX CORE - METHODOLOGY
+    'methodology-1': 10, // Expert
+    'methodology-2': 10, // Expert
+    'methodology-3': 10, // Expert
+    'methodology-4': 10, // Expert
+    // UX CORE - ACUMEN
+    'acumen-1': 10, // Expert
+    'acumen-2': 10, // Expert
+    'acumen-3': 10, // Expert
+    'acumen-4': 10, // Expert
+    // UX CORE - INNOVATION
+    'innovation-1': 10, // Expert
+    'innovation-2': 10, // Expert
+    'innovation-3': 10, // Expert
+    'innovation-4': 10, // Expert
+    // EXECUTION - DELIVERY
+    'delivery-1': 10, // Expert
+    'delivery-2': 10, // Expert
+    'delivery-3': 10, // Expert
+    'delivery-4': 10, // Expert
+    // EXECUTION - CRAFT
+    'craft-1': 10, // Expert
+    'craft-2': 10, // Expert
+    'craft-3': 10, // Expert
+    'craft-4': 10, // Expert
+    // EXECUTION - STORYTELLING
+    'storytelling-1': 10, // Expert
+    'storytelling-2': 10, // Expert
+    'storytelling-3': 10, // Expert
+    'storytelling-4': 10, // Expert
+    // LEADERSHIP - PROBLEM SOLVING
+    'problem-solving-1': 10, // Expert
+    'problem-solving-2': 10, // Expert
+    'problem-solving-3': 10, // Expert
+    'problem-solving-4': 10, // Expert
+    // LEADERSHIP - OWNERSHIP
+    'ownership-1': 10, // Expert
+    'ownership-2': 10, // Expert
+    'ownership-3': 10, // Expert
+    'ownership-4': 10, // Expert
+    // LEADERSHIP - INFLUENCE
+    'influence-1': 10, // Expert
+    'influence-2': 10, // Expert
+    'influence-3': 10, // Expert
+    'influence-4': 10, // Expert
+    // UX DESIGN ROLE - USER CENTERED DESIGN
+    'design-theory': 10, // Transformative
+    'consistency-quality': 10, // Transformative
+    'insight-artifacts': 10, // Transformative
+    // UX DESIGN ROLE - COMPOSABLE SYSTEMS THINKING
+    'design-architecture': 10, // Transformative
+    'platform-mindset': 10, // Transformative
+    'accessible-inclusive': 10, // Transformative
+    // UX DESIGN ROLE - EXPERIENCE HARMONY
+    'product-development': 10, // Transformative
+    'design-feedback': 10, // Transformative
+    'iterative-development': 10, // Transformative
   }
 };
 
-// Weekly check-in questions (derived from Column C framework)
-export const weeklyCheckInQuestions = [
-  {
-    id: 'methodology-growth',
-    category: 'UX Core',
-    question: 'How did you apply or strengthen your UX methodology this week?',
-    competencyIds: ['methodology'],
-    placeholder: 'Describe methodologies used, research conducted, or process improvements...'
-  },
-  {
-    id: 'business-impact',
-    category: 'UX Core', 
-    question: 'What business impact did your design work create this week?',
-    competencyIds: ['acumen'],
-    placeholder: 'Connect your design decisions to business outcomes or user metrics...'
-  },
-  {
-    id: 'execution-delivery',
-    category: 'Execution',
-    question: 'What did you deliver this week and how did you ensure quality?',
-    competencyIds: ['delivery', 'craft'],
-    placeholder: 'Describe deliverables, quality measures, and any process improvements...'
-  },
-  {
-    id: 'collaboration-influence',
-    category: 'Leadership',
-    question: 'How did you collaborate and influence stakeholders this week?',
-    competencyIds: ['influence-1', 'storytelling-1'],
-    placeholder: 'Describe stakeholder interactions, presentations, or consensus building...'
-  },
-  {
-    id: 'problem-ownership',
-    category: 'Leadership',
-    question: 'What problems did you solve and how did you take ownership?',
-    competencyIds: ['problem-solving-1', 'ownership-1'],
-    placeholder: 'Describe challenges faced, solutions implemented, and accountability taken...'
-  }
-];
+// Get all unique themes
+export const getAllThemes = (): string[] => {
+  const competencies = getAllCompetencies();
+  return [...new Set(competencies.map(comp => comp.theme))];
+};
 
-export const getAllCompetencies = () => [...sharedCompetencies, ...uxDesignCompetencies];
-export const getManagerCompetencies = () => [...sharedCompetencies, ...managerCompetencies, ...uxDesignCompetencies];
+// Get all unique pillars by theme
+export const getPillarsByTheme = (theme: string): string[] => {
+  const competencies = getAllCompetencies();
+  return [...new Set(competencies
+    .filter(comp => comp.theme === theme)
+    .map(comp => comp.pillar))];
+};
+
+// Get competencies by pillar
+export const getCompetenciesByPillar = (pillar: string): Competency[] => {
+  const competencies = getAllCompetencies();
+  return competencies.filter(comp => comp.pillar === pillar);
+};
