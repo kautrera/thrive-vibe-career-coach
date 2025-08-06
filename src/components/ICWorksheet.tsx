@@ -277,6 +277,7 @@ export default function ICWorksheet() {
 
   const getProgressPercentage = () => {
     const completed = assessments.filter(a => a.demonstratedBy && a.selfAssessment > 0).length;
+    if (assessments.length === 0) return 0;
     return Math.round((completed / assessments.length) * 100);
   };
 
@@ -564,7 +565,13 @@ export default function ICWorksheet() {
                     }`}
                     onClick={() => {
                       updateSelfAssessment(pillComp.id, pillAssessment.selfAssessment);
-                      selectLevel(pillComp.id, 1);
+                      if (isSelected) {
+                        // If already selected, close the section
+                        setSelectedLevel({});
+                      } else {
+                        // If not selected, open the section
+                        selectLevel(pillComp.id, 1);
+                      }
                     }}
                     >
                       {/* Content indicator */}
