@@ -273,12 +273,7 @@ export default function ICWorksheet() {
   
   const filteredCompetencies = selectedPillar === 'all' 
     ? competencies 
-    : competencies.filter(c => {
-        const pillarTheme = Object.entries(themes).find(([theme, pillars]) => 
-          pillars.includes(c.pillar)
-        )?.[0];
-        return pillarTheme === selectedPillar;
-      });
+    : competencies.filter(c => c.theme === selectedPillar);
 
   const getProgressPercentage = () => {
     const completed = assessments.filter(a => a.demonstratedBy && a.selfAssessment > 0).length;
@@ -534,29 +529,16 @@ export default function ICWorksheet() {
                   {pillarName}
                 </h3>
                 <div className="flex items-center space-x-2">
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    pillarCompetencies[0].category === 'shared' 
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                      : 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
-                  }`}>
-                    {pillarCompetencies.length} Competencies
-                  </span>
                   <span className={`px-2 py-1 rounded text-xs ${
-                    ['Methodology', 'Acumen', 'Innovation'].includes(pillarName)
+                    pillarCompetencies[0].theme === 'UX CORE'
                       ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                      : ['Delivery', 'Craft', 'Storytelling'].includes(pillarName)
+                      : pillarCompetencies[0].theme === 'EXECUTION'
                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                        : ['Problem Solving', 'Ownership', 'Influence'].includes(pillarName)
+                        : pillarCompetencies[0].theme === 'LEADERSHIP'
                           ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
                           : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
                   }`}>
-                    {['Methodology', 'Acumen', 'Innovation'].includes(pillarName)
-                      ? 'UX CORE'
-                      : ['Delivery', 'Craft', 'Storytelling'].includes(pillarName)
-                        ? 'EXECUTION'
-                        : ['Problem Solving', 'Ownership', 'Influence'].includes(pillarName)
-                          ? 'LEADERSHIP'
-                          : 'UX DESIGN ROLE'}
+                    {pillarCompetencies[0].theme}
                   </span>
                 </div>
               </div>
@@ -602,11 +584,9 @@ export default function ICWorksheet() {
                         {pillComp.name}
                       </h4>
                       
-                      {gradeExpectation > 0 && (
-                        <div className="text-xs text-blue-600 dark:text-blue-400 mb-2 text-center font-medium">
-                          Grade Expectation: Level {gradeExpectation}
-                        </div>
-                      )}
+                      <div className="text-xs text-blue-600 dark:text-blue-400 mb-2 text-center font-medium">
+                        Grade Expectation: {gradeExpectation === 0 ? 'N/A (0)' : `${assessmentScale.find(scale => scale.value === gradeExpectation)?.label || 'Level'} (${gradeExpectation})`}
+                      </div>
                       
                       <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 flex-grow text-center">
                         {pillComp.description}
