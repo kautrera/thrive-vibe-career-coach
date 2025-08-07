@@ -47,9 +47,9 @@ export default function ICWorksheet() {
     }
   }, []);
   const [isRecording, setIsRecording] = useState<string | null>(null);
-  const [showGenerateModal, setShowGenerateModal] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<{ [competencyId: string]: number }>({});
-  const [generatePopupPosition, setGeneratePopupPosition] = useState<{ top: number; left: number } | null>(null);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const competencies = getAllCompetencies();
 
   // Initialize assessments based on framework data
@@ -67,42 +67,137 @@ export default function ICWorksheet() {
           levelAssessments: assessment.levelAssessments || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
         }));
         setAssessments(migratedAssessments);
+        // Update progress tracking for existing data (defer to avoid setState during render)
+        setTimeout(() => updateProgressTracking(migratedAssessments), 0);
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error parsing saved assessments:', error);
         // Fall back to initial state if parsing fails
         initializeEmptyAssessments();
+        setIsInitialized(true);
       }
     } else {
       initializeEmptyAssessments();
+      setIsInitialized(true);
     }
   }, []);
 
   const initializeEmptyAssessments = () => {
-    const initialAssessments: CompetencyAssessment[] = competencies.map(comp => ({
-      competencyId: comp.id,
-      selfAssessment: 0,
-      gradeExpectation: gradeExpectations[selectedGrade]?.[comp.id] || 0,
-      demonstratedBy: '',
+      const initialAssessments: CompetencyAssessment[] = competencies.map(comp => ({
+        competencyId: comp.id,
+        selfAssessment: 0,
+        gradeExpectation: gradeExpectations[selectedGrade]?.[comp.id] || 0,
+        demonstratedBy: '',
       levelDemonstratedBy: { 1: '', 2: '', 3: '', 4: '', 5: '' },
       levelAssessments: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-      managerAssessment: 0,
-      managerNotes: ''
-    }));
-    setAssessments(initialAssessments);
+        managerAssessment: 0,
+        managerNotes: ''
+      }));
+      setAssessments(initialAssessments);
   };
 
   // Update grade expectations when grade changes
   useEffect(() => {
+    if (!isInitialized || assessments.length === 0) return; // Don't update if not initialized yet
+    
     const updatedAssessments = assessments.map(assessment => ({
       ...assessment,
       gradeExpectation: gradeExpectations[selectedGrade]?.[assessment.competencyId] || 0
     }));
     setAssessments(updatedAssessments);
-    saveToLocalStorage(updatedAssessments);
-  }, [selectedGrade]);
+    // Defer the progress tracking to avoid setState during render
+    setTimeout(() => saveToLocalStorage(updatedAssessments), 0);
+  }, [selectedGrade, isInitialized]); // Use isInitialized instead of assessments.length
 
   const saveToLocalStorage = (updatedAssessments: CompetencyAssessment[]) => {
     localStorage.setItem('icAssessments', JSON.stringify(updatedAssessments));
+    // Update progress tracking
+    updateProgressTracking(updatedAssessments);
+  };
+
+  const updateProgressTracking = (updatedAssessments: CompetencyAssessment[]) => {
+    const totalCompetencies = competencies.length;
+    const completedCompetencies = updatedAssessments.filter(assessment => 
+      assessment.selfAssessment > 0
+    ).length;
+    const progressPercentage = totalCompetencies > 0 ? Math.round((completedCompetencies / totalCompetencies) * 100) : 0;
+
+    // Save progress to localStorage for the Dashboard to read
+    const progressData = {
+      totalCompetencies,
+      completedCompetencies,
+      progressPercentage,
+      lastUpdated: new Date().toISOString()
+    };
+    localStorage.setItem('icAssessmentProgress', JSON.stringify(progressData));
+
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('icAssessmentProgressUpdated', { 
+      detail: progressData 
+    }));
+  };
+
+  const exportToCSV = () => {
+    // Helper function to get assessment level label
+    const getLevelLabel = (value: number, assessmentType: string) => {
+      const scale = assessmentType === 'proficiency' ? PROFICIENCY_SCALE : SCOPE_IMPACT_SCALE;
+      const level = scale.find(s => s.value === value);
+      return level ? `${level.label} (${value})` : `N/A (${value})`;
+    };
+
+    // CSV Header
+    const header = [
+      'Theme',
+      'Pillar', 
+      'Competency',
+      'GRADE 5 EXPECTATION',
+      'GRADE 6 EXPECTATION', 
+      'GRADE 7 EXPECTATION',
+      'GRADE 8 EXPECTATION',
+      'GRADE 9 EXPECTATION',
+      'GRADE 10 EXPECTATION',
+      'GRADE 11 EXPECTATION'
+    ];
+
+    // Generate CSV rows
+    const rows = competencies.map(comp => {
+      const g5 = gradeExpectations['G5']?.[comp.id] || 0;
+      const g6 = gradeExpectations['G6']?.[comp.id] || 0;
+      const g7 = gradeExpectations['G7']?.[comp.id] || 0;
+      const g8 = gradeExpectations['G8']?.[comp.id] || 0;
+      const g9 = gradeExpectations['G9']?.[comp.id] || 0;
+      const g10 = gradeExpectations['G10']?.[comp.id] || 0;
+      const g11 = gradeExpectations['G11']?.[comp.id] || 0;
+
+      return [
+        comp.theme || '',
+        comp.pillar || '',
+        `"${comp.description}"`, // Wrap description in quotes to handle commas
+        getLevelLabel(g5, comp.assessmentType),
+        getLevelLabel(g6, comp.assessmentType),
+        getLevelLabel(g7, comp.assessmentType),
+        getLevelLabel(g8, comp.assessmentType),
+        getLevelLabel(g9, comp.assessmentType),
+        getLevelLabel(g10, comp.assessmentType),
+        getLevelLabel(g11, comp.assessmentType)
+      ];
+    });
+
+    // Combine header and rows
+    const csvContent = [header, ...rows]
+      .map(row => row.join(','))
+      .join('\n');
+
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `UX_Career_Framework_Competencies_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const updateDemonstratedBy = (competencyId: string, value: string) => {
@@ -110,7 +205,7 @@ export default function ICWorksheet() {
       assessment.competencyId === competencyId ? { ...assessment, demonstratedBy: value } : assessment
     );
     setAssessments(updated);
-    saveToLocalStorage(updated);
+    setTimeout(() => saveToLocalStorage(updated), 0);
   };
 
   const updateLevelDemonstratedBy = (competencyId: string, level: number, value: string) => {
@@ -123,12 +218,14 @@ export default function ICWorksheet() {
         : assessment
     );
     setAssessments(updated);
-    saveToLocalStorage(updated);
+    setTimeout(() => saveToLocalStorage(updated), 0);
   };
 
   const selectLevel = (competencyId: string, level: number) => {
     // Only allow one competency to be selected at a time
     setSelectedLevel({ [competencyId]: level });
+    // Clear any generate errors when opening a new section
+    setGenerateError(null);
   };
 
   const getLevelContent = (competencyId: string, level: number): string => {
@@ -169,43 +266,290 @@ export default function ICWorksheet() {
       }
       
       console.log('Updated assessments:', updated);
-      saveToLocalStorage(updated);
+      // Defer saveToLocalStorage to avoid setState during render
+      setTimeout(() => saveToLocalStorage(updated), 0);
       return updated;
     });
   };
 
   const generateDemonstratedBy = async (competency: Competency, event: React.MouseEvent) => {
-    const button = event.currentTarget as HTMLButtonElement;
-    const rect = button.getBoundingClientRect();
+    console.log('✅ Generate button clicked for competency:', competency.id, competency.name);
+    event.preventDefault();
+    setGenerateError(null); // Clear any previous errors
     
-    setGeneratePopupPosition({
-      top: rect.bottom + window.scrollY + 8, // 8px below the button
-      left: rect.left + window.scrollX
-    });
-    setShowGenerateModal(competency.id);
+    // Directly call the generation function without modal
+    console.log('🔄 Calling handleGenerateText...');
+    await handleGenerateText(competency.id, '');
+    console.log('✅ handleGenerateText completed');
   };
 
   const handleGenerateText = async (competencyId: string, features: string) => {
+    console.log('🔧 handleGenerateText called with:', { competencyId, features });
+    console.log('🔧 selectedLevel state:', selectedLevel);
+    
     const competency = competencies.find(c => c.id === competencyId);
-    if (!competency || !selectedLevel[competencyId]) return;
+    if (!competency || !selectedLevel[competencyId]) {
+      console.log('❌ No competency or selected level found:', { competency: !!competency, selectedLevel: selectedLevel[competencyId] });
+      return;
+    }
 
     const level = selectedLevel[competencyId];
-    const levelDescription = competency.levels[level];
+    console.log('🔧 Found competency and level:', competency.name, level);
+    
+    try {
+      // Get AI Coach conversations from localStorage
+      const aiCoachHistories = localStorage.getItem('aiCoachChatHistories');
+      const aiCoachCurrentChat = localStorage.getItem('aiCoachCurrentChat');
+      
+      // Get Weekly Check-in data from localStorage
+      const weeklyCheckIns = localStorage.getItem('weeklyCheckIns');
+      
+      const allConversations: string[] = [];
+      
+      // Parse chat histories
+      if (aiCoachHistories) {
+        try {
+          const histories = JSON.parse(aiCoachHistories);
+          if (Array.isArray(histories)) {
+            histories.forEach((history: any) => {
+              if (history.messages && Array.isArray(history.messages)) {
+                history.messages.forEach((msg: any) => {
+                  if (msg.role === 'user' && msg.content && msg.content.trim().length > 20) {
+                    allConversations.push(msg.content);
+                  }
+                });
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error parsing chat histories:', error);
+        }
+      }
+      
+      // Parse current chat
+      if (aiCoachCurrentChat) {
+        try {
+          const currentChat = JSON.parse(aiCoachCurrentChat);
+          if (Array.isArray(currentChat)) {
+            currentChat.forEach((msg: any) => {
+              if (msg.role === 'user' && msg.content && msg.content.trim().length > 20) {
+                allConversations.push(msg.content);
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error parsing current chat:', error);
+        }
+      }
+      
+      // Parse Weekly Check-in data (saved entries)
+      if (weeklyCheckIns) {
+        try {
+          const checkIns = JSON.parse(weeklyCheckIns);
+          if (Array.isArray(checkIns)) {
+            checkIns.forEach((checkIn: any) => {
+              if (checkIn.responses) {
+                // Add all response values
+                Object.values(checkIn.responses).forEach((response: any) => {
+                  if (typeof response === 'string' && response.trim().length > 20) {
+                    allConversations.push(response);
+                  }
+                });
+              }
+              
+              // Add goals, blockers, and wins if they exist
+              if (checkIn.goals && Array.isArray(checkIn.goals)) {
+                checkIn.goals.forEach((goal: any) => {
+                  if (typeof goal === 'string' && goal.trim().length > 20) {
+                    allConversations.push(`Goal: ${goal}`);
+                  }
+                });
+              }
+              
+              if (checkIn.wins && Array.isArray(checkIn.wins)) {
+                checkIn.wins.forEach((win: any) => {
+                  if (typeof win === 'string' && win.trim().length > 20) {
+                    allConversations.push(`Achievement: ${win}`);
+                  }
+                });
+              }
+              
+              if (checkIn.blockers && Array.isArray(checkIn.blockers)) {
+                checkIn.blockers.forEach((blocker: any) => {
+                  if (typeof blocker === 'string' && blocker.trim().length > 20) {
+                    allConversations.push(`Challenge overcome: ${blocker}`);
+                  }
+                });
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Error parsing weekly check-ins:', error);
+        }
+      }
+      
+      // Parse current Weekly Check-in data (in-progress entry)
+      const weeklyCheckInCurrent = localStorage.getItem('weeklyCheckInCurrent');
+      if (weeklyCheckInCurrent) {
+        try {
+          const currentCheckIn = JSON.parse(weeklyCheckInCurrent);
+          if (currentCheckIn) {
+            // Add response values from current entry
+            if (currentCheckIn.responses) {
+              Object.values(currentCheckIn.responses).forEach((response: any) => {
+                if (typeof response === 'string' && response.trim().length > 20) {
+                  allConversations.push(`Current week: ${response}`);
+                }
+              });
+            }
+            
+            // Add current goals, wins, blockers
+            if (currentCheckIn.goals && Array.isArray(currentCheckIn.goals)) {
+              currentCheckIn.goals.forEach((goal: any) => {
+                if (typeof goal === 'string' && goal.trim().length > 20) {
+                  allConversations.push(`Current Goal: ${goal}`);
+                }
+              });
+            }
+            
+            if (currentCheckIn.wins && Array.isArray(currentCheckIn.wins)) {
+              currentCheckIn.wins.forEach((win: any) => {
+                if (typeof win === 'string' && win.trim().length > 20) {
+                  allConversations.push(`Current Achievement: ${win}`);
+                }
+              });
+            }
+            
+            if (currentCheckIn.blockers && Array.isArray(currentCheckIn.blockers)) {
+              currentCheckIn.blockers.forEach((blocker: any) => {
+                if (typeof blocker === 'string' && blocker.trim().length > 20) {
+                  allConversations.push(`Current Challenge: ${blocker}`);
+                }
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing current weekly check-in:', error);
+        }
+      }
+      
+      if (allConversations.length === 0) {
+        // Show error message if no conversations found
+        setGenerateError('No content found. Start a conversation with the AI Coach or complete Weekly Check-ins to generate content.');
+        return;
+      }
+      
+      // Clear any previous errors
+      setGenerateError(null);
+      
+      // Find relevant conversations based on competency keywords
+      const competencyKeywords = [
+        competency.name.toLowerCase(),
+        competency.pillar.toLowerCase(),
+        competency.theme.toLowerCase(),
+        ...competency.description.toLowerCase().split(' ').filter(word => word.length > 4)
+      ];
+      
+      const relevantConversations = allConversations.filter(conversation => {
+        const conversationLower = conversation.toLowerCase();
+        return competencyKeywords.some(keyword => 
+          conversationLower.includes(keyword) || 
+          conversationLower.includes('project') ||
+          conversationLower.includes('work') ||
+          conversationLower.includes('team') ||
+          conversationLower.includes('design') ||
+          conversationLower.includes('user') ||
+          conversationLower.includes('experience') ||
+          conversationLower.includes('delivered') ||
+          conversationLower.includes('achieved') ||
+          conversationLower.includes('completed') ||
+          conversationLower.includes('improved') ||
+          conversationLower.includes('collaborated') ||
+          conversationLower.includes('stakeholder') ||
+          conversationLower.includes('research') ||
+          conversationLower.includes('feedback') ||
+          conversationLower.includes('goal:') ||
+          conversationLower.includes('achievement:') ||
+          conversationLower.includes('challenge overcome:')
+        );
+      });
+      
+      const conversationsToUse = relevantConversations.length > 0 ? relevantConversations : allConversations;
+      
+      // Use multiple conversations to create a more comprehensive summary
+      const selectedConversations = conversationsToUse
+        .slice(0, 3) // Use up to 3 conversations
+        .join(' ');
+      
+              // Generate AI-reworded summary
+        const demonstratedText = await generateAISummary(selectedConversations, competency, features);
+        
+        // Update the level-specific demonstrated by field (level 1 which the textarea uses)
+        console.log('🎯 Generated text:', demonstratedText);
+        console.log('🔄 Updating level demonstrated by field for:', competencyId, 'level 1');
+        updateLevelDemonstratedBy(competencyId, 1, demonstratedText);
+        console.log('✅ Level demonstrated by field updated');
+      
+    } catch (error) {
+      console.error('Error generating text from conversations:', error);
+      setGenerateError('Error processing saved content. Please try again or add content manually.');
+    }
+  };
 
-    // AI-powered suggestions based on competency type, level, and features
-    const suggestions = [
-      `Led ${competency.name.toLowerCase()} initiative ${features ? `focusing on ${features}` : ''} demonstrating "${levelDescription}" for Q3 product launch with measurable user impact`,
-      `Facilitated cross-functional ${competency.name.toLowerCase()} workshops ${features ? `emphasizing ${features}` : ''} showing "${levelDescription}" improving team alignment by 40%`,
-      `Delivered ${competency.name.toLowerCase()} improvements ${features ? `incorporating ${features}` : ''} exemplifying "${levelDescription}" resulting in 15% increase in user satisfaction scores`,
-      `Mentored 3 junior designers on ${competency.name.toLowerCase()} best practices ${features ? `with focus on ${features}` : ''} demonstrating "${levelDescription}" with 100% skill improvement`,
-      `Presented ${competency.name.toLowerCase()} insights ${features ? `highlighting ${features}` : ''} showing "${levelDescription}" to executive stakeholders, influencing product roadmap`,
-      `Established ${competency.name.toLowerCase()} standards ${features ? `including ${features}` : ''} exemplifying "${levelDescription}" adopted across 5 product teams`,
-      `Optimized ${competency.name.toLowerCase()} processes ${features ? `leveraging ${features}` : ''} demonstrating "${levelDescription}" reducing design delivery time by 30%`
+  // AI Summary Generation Function
+  const generateAISummary = async (conversationText: string, competency: Competency, features: string): Promise<string> => {
+    // This is a simplified AI rewriting function
+    // In a real implementation, you'd call an actual AI service
+    
+    // Extract key themes and actions from the conversation
+    const actionWords = ['led', 'managed', 'facilitated', 'delivered', 'implemented', 'designed', 'created', 'developed', 'improved', 'optimized', 'collaborated', 'presented', 'analyzed', 'researched', 'achieved', 'completed'];
+    const foundActions = actionWords.filter(action => 
+      conversationText.toLowerCase().includes(action)
+    );
+    
+    // Extract project mentions
+    const projectPattern = /project|initiative|feature|product|design|system|process|workflow|solution|goal|deliverable/gi;
+    const projectMentions = conversationText.match(projectPattern) || [];
+    
+    // Check if content comes from Weekly Check-ins (has prefixes or contains weekly check-in keywords)
+    const isFromWeeklyCheckin = conversationText.includes('Goal:') || 
+                                conversationText.includes('Achievement:') || 
+                                conversationText.includes('Challenge overcome:') ||
+                                conversationText.includes('Current week:') ||
+                                conversationText.includes('Current Goal:') ||
+                                conversationText.includes('Current Achievement:') ||
+                                conversationText.includes('Current Challenge:');
+    
+    // Generate a professional summary
+    const action = foundActions[0] || 'contributed to';
+    const context = projectMentions.length > 0 ? `${projectMentions[0]?.toLowerCase()} initiatives` : 'team projects';
+    const competencyFocus = competency.name.toLowerCase();
+    const featureText = features ? ` with emphasis on ${features}` : '';
+    
+    // Create different summary templates based on source
+    const templates = isFromWeeklyCheckin ? [
+      `Throughout recent weeks, ${action} ${context} that demonstrated ${competencyFocus} skills${featureText}, achieving measurable outcomes through consistent execution and strategic thinking.`,
+      `Applied ${competencyFocus} expertise across weekly deliverables${featureText}, showing continuous improvement through systematic approach and stakeholder engagement.`,
+      `Demonstrated ${competencyFocus} capabilities through weekly achievements and goals${featureText}, focusing on user-centered solutions and iterative development processes.`,
+      `Consistently utilized ${competencyFocus} knowledge in weekly work cycles${featureText}, evidencing skill growth through goal achievement and challenge resolution.`
+    ] : [
+      `Recently ${action} ${context} that required strong ${competencyFocus} skills${featureText}, demonstrating practical application through hands-on problem-solving and stakeholder collaboration.`,
+      `Applied ${competencyFocus} expertise in ${context}${featureText}, showing measurable impact through systematic approach and cross-functional partnership.`,
+      `Demonstrated ${competencyFocus} capabilities through ${context}${featureText}, focusing on user-centered solutions and iterative improvement processes.`,
+      `Utilized ${competencyFocus} knowledge in recent ${context}${featureText}, evidencing skill development through real-world application and feedback integration.`
     ];
     
-    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-    updateLevelDemonstratedBy(competencyId, level, randomSuggestion);
-    setShowGenerateModal(null);
+    // Select template based on conversation content
+    let selectedTemplate = templates[0];
+    if (conversationText.toLowerCase().includes('user') || conversationText.toLowerCase().includes('customer')) {
+      selectedTemplate = templates[2];
+    } else if (conversationText.toLowerCase().includes('measure') || conversationText.toLowerCase().includes('impact') || conversationText.toLowerCase().includes('achievement')) {
+      selectedTemplate = templates[1];
+    } else if (conversationText.toLowerCase().includes('feedback') || conversationText.toLowerCase().includes('improve') || conversationText.toLowerCase().includes('goal')) {
+      selectedTemplate = templates[3];
+    }
+    
+    return selectedTemplate;
   };
 
   // Voice recording functionality
@@ -276,7 +620,7 @@ export default function ICWorksheet() {
     : competencies.filter(c => c.theme === selectedPillar);
 
   const getProgressPercentage = () => {
-    const completed = assessments.filter(a => a.demonstratedBy && a.selfAssessment > 0).length;
+    const completed = assessments.filter(a => a.selfAssessment > 0).length;
     if (assessments.length === 0) return 0;
     return Math.round((completed / assessments.length) * 100);
   };
@@ -307,7 +651,7 @@ export default function ICWorksheet() {
             } 
           : assessment
       );
-      saveToLocalStorage(updated);
+      setTimeout(() => saveToLocalStorage(updated), 0);
       return updated;
     });
   };
@@ -405,14 +749,11 @@ export default function ICWorksheet() {
         
         {/* Action Buttons */}
         <div className="flex items-center space-x-3">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
-            Save Assessment
-          </button>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
-            Export to PDF
-          </button>
-          <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm">
-            Get AI Recommendations
+          <button 
+            onClick={exportToCSV}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+          >
+            Export to CSV
           </button>
         </div>
       </div>
@@ -440,15 +781,15 @@ export default function ICWorksheet() {
           {/* Current Grade Section */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Current Grade</h2>
-            <select
-              value={selectedGrade}
-              onChange={(e) => setSelectedGrade(e.target.value)}
+          <select
+            value={selectedGrade}
+            onChange={(e) => setSelectedGrade(e.target.value)}
               className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-lg"
-            >
-              {grades.map(grade => (
+          >
+            {grades.map(grade => (
                 <option key={grade.value} value={grade.value}>{grade.label}</option>
-              ))}
-            </select>
+            ))}
+          </select>
             
             {/* Grade Level Description */}
             <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
@@ -495,23 +836,6 @@ export default function ICWorksheet() {
         </div>
       </div>
 
-      {/* Self Assessment Instructions - With White Container */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
-          <div className="flex items-start space-x-3">
-            <div className="text-blue-600 dark:text-blue-300">
-              <span className="text-lg">💡</span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Self-Assessment Guide</h3>
-              <p className="text-blue-800 dark:text-blue-200 text-sm">
-                Each card represents a specific competency. Click on a card to rate your proficiency and provide evidence for that competency.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Competencies - Group by pillars */}
       <div className="space-y-6">
         {/* Group competencies by pillar */}
@@ -524,23 +848,23 @@ export default function ICWorksheet() {
         ).map(([pillarName, pillarCompetencies]) => (
           <div key={pillarName} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500">
             {/* Pillar Header */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                   {pillarName}
-                </h3>
-                <div className="flex items-center space-x-2">
+                  </h3>
+                  <div className="flex items-center space-x-2">
                   <span className={`px-2 py-1 rounded text-xs ${
                     pillarCompetencies[0].theme === 'UX CORE'
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
                       : pillarCompetencies[0].theme === 'EXECUTION'
                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                         : pillarCompetencies[0].theme === 'LEADERSHIP'
                           ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
-                          : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
-                  }`}>
+                        : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
+                    }`}>
                     {pillarCompetencies[0].theme}
-                  </span>
+                    </span>
                 </div>
               </div>
             </div>
@@ -568,6 +892,7 @@ export default function ICWorksheet() {
                       if (isSelected) {
                         // If already selected, close the section
                         setSelectedLevel({});
+                        setGenerateError(null);
                       } else {
                         // If not selected, open the section
                         selectLevel(pillComp.id, 1);
@@ -580,27 +905,21 @@ export default function ICWorksheet() {
                              title="Has demonstrated content"></div>
                       )}
                       
-                      <div className="text-center mb-2">
-                        <div className="inline-flex w-10 h-10 rounded-full text-white text-lg font-bold items-center justify-center bg-blue-500 shadow-lg">
-                          {index + 1}
-                        </div>
-
-                      </div>
-                      
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 text-center">
-                        {pillComp.name}
-                      </h4>
-                      
-                      <div className="text-xs text-blue-600 dark:text-blue-400 mb-2 text-center font-medium">
-                        Grade Expectation: {gradeExpectation === 0 ? 'N/A (0)' : `${assessmentScale.find(scale => scale.value === gradeExpectation)?.label || 'Level'} (${gradeExpectation})`}
-                      </div>
-                      
-                      <p className="text-xs text-gray-700 dark:text-gray-300 mb-2 flex-grow text-center">
+                      {/* Competency Description at top */}
+                      <p className="text-xs text-gray-700 dark:text-gray-300 mb-3 text-center">
                         {pillComp.description}
                       </p>
                       
-                      {/* Assessment Dropdown */}
-                      <div className="mt-auto space-y-1">
+                      {/* Grade Expectation */}
+                      <div className="text-xs text-blue-600 dark:text-blue-400 text-center font-medium mb-3">
+                        Grade Expectation: {gradeExpectation === 0 ? 'N/A (0)' : `${assessmentScale.find(scale => scale.value === gradeExpectation)?.label || 'Level'} (${gradeExpectation})`}
+                      </div>
+                      
+                      {/* Spacer to push dropdown to bottom */}
+                      <div className="flex-grow"></div>
+                      
+                      {/* Assessment Dropdown at bottom */}
+                      <div className="mt-auto">
                         <select
                           key={`${pillComp.id}-dropdown`}
                           value={pillAssessment.selfAssessment || 0}
@@ -619,14 +938,14 @@ export default function ICWorksheet() {
                             </option>
                           ))}
                         </select>
-                        {pillAssessment.selfAssessment > 0 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {assessmentScale.find(s => s.value === pillAssessment.selfAssessment)?.description}
-                          </div>
-                        )}
                       </div>
                       
-                      {/* Content summary */}
+                      {pillAssessment.selfAssessment > 0 && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {assessmentScale.find(s => s.value === pillAssessment.selfAssessment)?.description}
+                        </div>
+                      )}
+                      
                       {content && (
                         <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded mt-1">
                           <div className="font-medium mb-1">Evidence:</div>
@@ -653,20 +972,20 @@ export default function ICWorksheet() {
                 
                 return (
                 <div className="space-y-4 bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border-2 border-purple-300 dark:border-purple-600">
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-purple-700 dark:text-purple-300">
                       demonstrated by
-                    </label>
-                    <button
+                  </label>
+                  <button
                       onClick={(e) => generateDemonstratedBy(selectedComp, e)}
                       className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors flex items-center space-x-1"
-                    >
+                  >
                       <span>✨</span>
                       <span>Generate Text</span>
-                    </button>
-                  </div>
+                  </button>
+                </div>
                   <div className="relative">
-                    <textarea
+                <textarea
                       value={getLevelContent(selectedComp.id, 1)}
                       onChange={(e) => updateLevelDemonstratedBy(selectedComp.id, 1, e.target.value)}
                       placeholder={`Describe specific examples and achievements that demonstrate your proficiency in ${selectedComp.name}...`}
@@ -684,10 +1003,17 @@ export default function ICWorksheet() {
                     >
                       {isRecording === `${selectedComp.id}-1` ? '⏹️' : '🎤'}
                     </button>
-                  </div>
+              </div>
                   <div className="text-xs text-purple-600 dark:text-purple-400">
                     💡 Click on a competency card above to add evidence for that specific competency
                   </div>
+                  
+                  {/* Error message display */}
+                  {generateError && (
+                    <div className="mt-2 p-3 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg">
+                      <p className="text-sm text-red-700 dark:text-red-300">{generateError}</p>
+                    </div>
+                  )}
                 </div>
                 );
               })()}
@@ -702,89 +1028,13 @@ export default function ICWorksheet() {
                   </p>
                 </div>
               )}
-          </div>
+            </div>
         ))}
       </div>
 
 
 
-      {/* Generate Text Popup */}
-      {showGenerateModal && generatePopupPosition && (
-        <>
-          {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => {
-            setShowGenerateModal(null);
-            setGeneratePopupPosition(null);
-          }}></div>
-          
-          {/* Popup */}
-          <div 
-            className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600 w-80"
-            style={{
-              top: `${generatePopupPosition.top}px`,
-              left: `${generatePopupPosition.left}px`
-            }}
-          >
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Generate Text</h3>
-                <button
-                  onClick={() => {
-                    setShowGenerateModal(null);
-                    setGeneratePopupPosition(null);
-                  }}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Features and keywords
-                  </label>
-                  <input
-                    id="features-input"
-                    type="text"
-                    placeholder="e.g. design systems, user research, accessibility"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Tone: Expert
-                  </label>
-                </div>
-                
-                <div className="flex justify-between items-center pt-2">
-                  <button
-                    onClick={() => {
-                      setShowGenerateModal(null);
-                      setGeneratePopupPosition(null);
-                    }}
-                    className="px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      const featuresInput = document.getElementById('features-input') as HTMLInputElement;
-                      handleGenerateText(showGenerateModal, featuresInput?.value || '');
-                      setGeneratePopupPosition(null);
-                    }}
-                    className="px-3 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-                  >
-                    <span>✨</span>
-                    <span>Generate</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+
     </div>
   );
 }

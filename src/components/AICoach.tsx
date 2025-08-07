@@ -70,7 +70,16 @@ export default function AICoach() {
     const savedPersona = localStorage.getItem('aiPersona');
 
     if (savedHistories) {
-      setChatHistories(JSON.parse(savedHistories));
+      try {
+        const parsedHistories = JSON.parse(savedHistories);
+        if (Array.isArray(parsedHistories)) {
+          setChatHistories(parsedHistories);
+        }
+      } catch (error) {
+        console.error('Error parsing saved chat histories:', error);
+        // Clear invalid data
+        localStorage.removeItem('aiCoachChatHistories');
+      }
     }
 
     if (savedCurrentChatId) {
@@ -78,10 +87,19 @@ export default function AICoach() {
     }
 
     if (savedCurrentChat) {
-      setCurrentChat(JSON.parse(savedCurrentChat).map((msg: any) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp)
-      })));
+      try {
+        const parsedChat = JSON.parse(savedCurrentChat);
+        if (Array.isArray(parsedChat)) {
+          setCurrentChat(parsedChat.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          })));
+        }
+      } catch (error) {
+        console.error('Error parsing saved chat:', error);
+        // Clear invalid data
+        localStorage.removeItem('aiCoachCurrentChat');
+      }
     }
 
     if (savedPersona) {

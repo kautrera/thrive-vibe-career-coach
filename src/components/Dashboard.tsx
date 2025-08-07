@@ -38,6 +38,35 @@ export default function Dashboard({ userRole, onRoleChange }: DashboardProps) {
     if (savedData) {
       setProgressData(JSON.parse(savedData));
     }
+
+    // Load IC assessment progress
+    const icProgressData = localStorage.getItem('icAssessmentProgress');
+    if (icProgressData) {
+      try {
+        const icProgress = JSON.parse(icProgressData);
+        setProgressData(prev => ({
+          ...prev,
+          icProgress: icProgress.progressPercentage
+        }));
+      } catch (error) {
+        console.error('Error parsing IC progress data:', error);
+      }
+    }
+
+    // Listen for IC assessment progress updates
+    const handleProgressUpdate = (event: CustomEvent) => {
+      setProgressData(prev => ({
+        ...prev,
+        icProgress: event.detail.progressPercentage,
+        lastActivity: new Date().toLocaleDateString()
+      }));
+    };
+
+    window.addEventListener('icAssessmentProgressUpdated', handleProgressUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('icAssessmentProgressUpdated', handleProgressUpdate as EventListener);
+    };
   }, []);
 
   const [activeSection, setActiveSection] = useState<'dashboard' | 'assessment' | 'weekly-checkin' | 'quarterly-checkin' | 'v2mom' | 'ai-coach'>('dashboard');

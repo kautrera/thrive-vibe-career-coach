@@ -76,9 +76,62 @@ export default function WeeklyCheckIn({ userRole, onBackToDashboard }: WeeklyChe
       setPastEntries(JSON.parse(savedEntries));
     }
 
-    // Initialize current week entry
+    // Try to load current entry from localStorage first
+    const savedCurrentEntry = localStorage.getItem('weeklyCheckInCurrent');
+    console.log('Checking for saved current entry:', savedCurrentEntry);
+    if (savedCurrentEntry) {
+      try {
+        const parsedEntry = JSON.parse(savedCurrentEntry);
+        console.log('Loading saved entry:', parsedEntry);
+        setCurrentEntry(parsedEntry);
+        return;
+      } catch (error) {
+        console.error('Error parsing saved current entry:', error);
+      }
+    }
+
+    // Initialize new current week entry if none exists
     const today = new Date();
     const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    
+    const weekString = `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
+    
+    const newEntry = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      week: weekString,
+      responses: {},
+      goals: [''],
+      blockers: [''],
+      wins: ['']
+    };
+    console.log('Creating new entry:', newEntry);
+    setCurrentEntry(newEntry);
+  }, []);
+
+  const saveEntry = () => {
+    if (!currentEntry) return;
+
+    const updatedEntries = [currentEntry, ...pastEntries];
+    setPastEntries(updatedEntries);
+    localStorage.setItem('weeklyCheckIns', JSON.stringify(updatedEntries));
+
+    // Clear current entry from localStorage since it's now saved
+    localStorage.removeItem('weeklyCheckInCurrent');
+
+    // Update progress data
+    const progressData = JSON.parse(localStorage.getItem('careerProgressData') || '{}');
+    progressData.weeklyCheckIns = (progressData.weeklyCheckIns || 0) + 1;
+    progressData.lastActivity = new Date().toLocaleDateString();
+    localStorage.setItem('careerProgressData', JSON.stringify(progressData));
+
+    alert('Weekly check-in saved successfully! 🎉');
+    
+    // Initialize a new entry for next week
+    const today = new Date();
+    const weekStart = new Date(today.setDate(today.getDate() - today.getDay() + 7));
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
     
@@ -93,54 +146,77 @@ export default function WeeklyCheckIn({ userRole, onBackToDashboard }: WeeklyChe
       blockers: [''],
       wins: ['']
     });
-  }, []);
-
-  const saveEntry = () => {
-    if (!currentEntry) return;
-
-    const updatedEntries = [currentEntry, ...pastEntries];
-    setPastEntries(updatedEntries);
-    localStorage.setItem('weeklyCheckIns', JSON.stringify(updatedEntries));
-
-    // Update progress data
-    const progressData = JSON.parse(localStorage.getItem('careerProgressData') || '{}');
-    progressData.weeklyCheckIns = (progressData.weeklyCheckIns || 0) + 1;
-    progressData.lastActivity = new Date().toLocaleDateString();
-    localStorage.setItem('careerProgressData', JSON.stringify(progressData));
-
-    alert('Weekly check-in saved successfully! 🎉');
   };
 
   const updateResponse = (questionId: string, value: string) => {
-    if (!currentEntry) return;
-    setCurrentEntry({
+    console.log('updateResponse called:', questionId, value);
+    if (!currentEntry) {
+      console.log('No current entry found');
+      return;
+    }
+    const updatedEntry = {
       ...currentEntry,
       responses: { ...currentEntry.responses, [questionId]: value }
-    });
+    };
+    setCurrentEntry(updatedEntry);
+    console.log('Updated entry:', updatedEntry);
+    
+    // Auto-save to localStorage after a short delay
+    setTimeout(() => {
+      console.log('Auto-saving to localStorage:', updatedEntry);
+      localStorage.setItem('weeklyCheckInCurrent', JSON.stringify(updatedEntry));
+    }, 500);
   };
 
   const updateArrayField = (field: 'goals' | 'blockers' | 'wins', index: number, value: string) => {
     if (!currentEntry) return;
     const updated = [...currentEntry[field]];
     updated[index] = value;
-    setCurrentEntry({ ...currentEntry, [field]: updated });
+    const updatedEntry = { ...currentEntry, [field]: updated };
+    setCurrentEntry(updatedEntry);
+    
+    // Auto-save to localStorage after a short delay
+    setTimeout(() => {
+      localStorage.setItem('weeklyCheckInCurrent', JSON.stringify(updatedEntry));
+    }, 500);
   };
 
   const addArrayItem = (field: 'goals' | 'blockers' | 'wins') => {
     if (!currentEntry) return;
-    setCurrentEntry({
+    const updatedEntry = {
       ...currentEntry,
       [field]: [...currentEntry[field], '']
-    });
+    };
+    setCurrentEntry(updatedEntry);
+    
+    // Auto-save to localStorage
+    setTimeout(() => {
+      localStorage.setItem('weeklyCheckInCurrent', JSON.stringify(updatedEntry));
+    }, 100);
   };
 
   const removeArrayItem = (field: 'goals' | 'blockers' | 'wins', index: number) => {
     if (!currentEntry) return;
     const updated = currentEntry[field].filter((_, i) => i !== index);
-    setCurrentEntry({ ...currentEntry, [field]: updated.length ? updated : [''] });
+    const updatedEntry = { ...currentEntry, [field]: updated.length ? updated : [''] };
+    setCurrentEntry(updatedEntry);
+    
+    // Auto-save to localStorage
+    setTimeout(() => {
+      localStorage.setItem('weeklyCheckInCurrent', JSON.stringify(updatedEntry));
+    }, 100);
   };
 
   if (!currentEntry) return <div>Loading...</div>;
+
+  // Manual save function for testing
+  const manualSave = () => {
+    if (currentEntry) {
+      localStorage.setItem('weeklyCheckInCurrent', JSON.stringify(currentEntry));
+      console.log('Manual save completed:', currentEntry);
+      alert('Manually saved current entry to localStorage!');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -343,8 +419,14 @@ export default function WeeklyCheckIn({ userRole, onBackToDashboard }: WeeklyChe
         </div>
       </div>
 
-      {/* Save Button */}
-      <div className="flex justify-center pt-6">
+      {/* Save Buttons */}
+      <div className="flex justify-center pt-6 space-x-4">
+        <button
+          onClick={manualSave}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+        >
+          Test Save (Debug)
+        </button>
         <button
           onClick={saveEntry}
           className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg"

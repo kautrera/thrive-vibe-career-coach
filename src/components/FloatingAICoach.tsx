@@ -16,8 +16,7 @@ export default function FloatingAICoach() {
       const isOnAICoachPage = !!aiCoachElement;
       setIsOnAICoachPage(isOnAICoachPage);
       
-      // Debug logging
-      console.log('FloatingAICoach: AI Coach element found?', isOnAICoachPage);
+
     };
     
     // Check initially and on DOM changes
